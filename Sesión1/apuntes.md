@@ -19,7 +19,7 @@ Nos permiten hacer operaciones aritméticas.
 matemáticamente, sino mediante operaciones de cadena (concatenar, buscar subcadenas).
 
 ### Tipos de datos primitivos
-El Dominio define la regla teórica, y el Tipo Primitivo de Java es la casilla de memoria fija
+El Dominio define la regla teórica y el tipo Primitivo de Java es la casilla de memoria fija
 diseñada para cumplir esa regla. Es decir, que para ver la idea del Dominio de un dato en la
 práctica, Java dispone de los tipos de datos primitivos. 
 
@@ -51,18 +51,15 @@ En Java, tenemos:
 
 Note que **la clase representa un tipo de datos compuesto** ya que una simple class Estudiante
 podría conformarse de un String nombre, int edad, boolean estaEstudiando, entre otras. Por lo
-que se evidencia un conjunto de datos primitivo.
+que se evidencia un conjunto de datos primitivos.
 
 ## La necesidad de manejar la complejidad: La Abstracción
 Al agrupar datos en estructuras compuestas más grandes, surge un nuevo problema: si para 
 usar una estructura tuvieras que conocer y modificar manualmente cada detalle interno de 
 cómo está guardada en memoria, el software se volvería frágil e inmanejable.
 
-Por ejemplo: Supón que el objeto `Estudiante` tiene 20 datos internos (promedio, materias
-aprobadas, multas de biblioteca, año de ingreso, etc.). Si **NO usaras abstracción**, cada vez
-que quisieras matricular al estudiante tendrías que modificar manualmente sus 20 variables en
-memoria una por una. Si te equivocas en un dato, todo el programa falla (software frágil e
-inmanejable).
+Por ejemplo: Supón que quieres conducir un carro. Si **NO usaras abstracción**, tendrías que controlar manualmente la inyección de combustible, la chispa de las bujías, la presión del aceite y
+mover los engranajes de la transmisión. Un error de milisegundos destruye el motor. **Con abstracción** el fabricante sólo te da una interfaz simple: el pedal del acelerador **(Te importa qué hacer con el carro, no cómo)**.
 
 Para resolver esto, la ciencia de la computación aplica el principio de **Abstracción**.
 
@@ -81,9 +78,22 @@ matemático detrás de ello.
 operaciones que podemos realizar con ellos, sin importar cómo se almacenan en memoria. De
 este concepto nace el **TDA**.
 
+Se le dice tipo de dato abstracto porque el programador que diseñará ese tipo de dato sí se 
+cuestionará el **cómo**. Sin embargo, está destinado para que otros programadores (o incluso el mismo programador) lo usen, reduciendo 
+todo al interés al **qué hace**.
+
 ### Tipos de datos abstractos (TDAs)
-Un **TDA** es un modelo matemático de una estructura de datos que representa entidades del
+Se llama **Abstracto** porque define una **idea** matemática/lógica pura (por ejemplo: "una Pila es 
+una estructura donde el último en entrar es el primero en salir") que existe conceptualmente antes 
+de convertirse en código concreto en cualquier lenguaje.
+
+Un **TDA** es un modelo matemático (Es decir, teórico) de una `estructura de datos` que representa entidades del
 mundo real o conceptos abstractos, especificando el **QUÉ** y omitiendo el **CÓMO**.
+
+> Estructuras de datos: Es la forma concreta de **organizar, almacenar y gestionar datos en la 
+memoria RAM** de la computadora para que puedan ser accedidos y modificados de manera eficiente. Si el 
+**TDA** es el plano arquitectónico teórico (*el qué*), la **Estructura de Datos** es la construcción 
+física con materiales concretos en memoria (*el cómo*).
 
 Un TDA bien diseñado se compone de dos partes fundamentales:
 
@@ -99,7 +109,7 @@ y los datos. Un TDA correctamente creado **mantiene sus propiedades ocultas**.
 
 ## Implementación de un TDA en Java
 Para llevar un TDA del papel (modelo matemático) a un lenguaje orientado a objetos como Java,
-el lenguaje nos ofrece tres herramientas principales:
+el lenguaje nos permite implementarlos mediante:
 
 1. **Interfaces (`interface`):** Representan el TDA en su estado más puro. Solo definen el
     **QUÉ** (la firma de los métodos/operaciones) sin incluir detalles de implementación ni
@@ -116,7 +126,8 @@ el lenguaje nos ofrece tres herramientas principales:
 
 ### Caso de Estudio: El TDA `List` en Java
 El TDA **`List`** representa una colección ordenada de elementos de cualquier tipo.
-
+Note que se le dice TDA ya que estamos hablando de una interfaz. Por lo cual, sólo
+está establecido el qué hace List<E>, más no cómo lo hará.
 
                      ┌──────────────────┐
                      │  List<E>         │  <-- TDA / Interfaz
@@ -129,7 +140,6 @@ El TDA **`List`** representa una colección ordenada de elementos de cualquier t
     │  ArrayList<E>       │       │  LinkedList<E>      │  <-- Estructuras de Datos
     │  (Basado en Arrays) │       │  (Basado en Nodos)  │      (Implementan el CÓMO)
     └─────────────────────┘       └─────────────────────┘
-
 
 #### 1. El Contrato (La Interfaz `List<E>`)
 Define las reglas que toda lista debe cumplir en Java:
@@ -166,18 +176,17 @@ Para poder programar nuestras propias versiones de `ArrayList`, `LinkedList`, `P
 desde cero en este curso, necesitamos dominar 3 herramientas fundamentales de Java y Algoritmos:
 
 1. **Java Generics (`<T>` / `<E>`):** Para que nuestros TDAs puedan almacenar cualquier tipo de 
-objeto sin perder la seguridad de tipos.
+objeto sin perder la seguridad de tipos (Veremos su utilidad más adelante).
 
 2. **Notación Asintótica (Big-O):** Para medir matemáticamente si es mejor usar `ArrayList` o 
-`LinkedList` según el problema.
+`LinkedList` según el problema (Veremos su utilidad más adeltante).
 
-3. **Recursividad:** La técnica base para recorrer estructuras no lineales complejas como Árboles 
-y Grafos.
+3. **Recursividad:** Veremos su utilidad más adelante.
 
 Todo esto se verá con detalle a continuación.
 
 ## De los TDAs a Java Generics
-### 1. ""El Axioma del Contenedor (El Lema Inspirador)""
+### 1. ""El Axioma del Contenedor (El Lema Inspirador)"" -> xD
 
 > **"La estructura y los algoritmos que gestionan los datos son totalmente independientes de la naturaleza de los datos gestionados."**
 
@@ -206,7 +215,8 @@ Escribir clases independientes como `IntArrayList`, `StringArrayList` o `Student
 
 #### Opción B: Crear un TDA utilizando la clase ancestro `Object`
 Escribir una sola estructura basada en `Object`. Dado que toda clase hereda de `Object` en Java, la estructura puede almacenar cualquier tipo de elemento.
-* **Falla:** Elimina la **seguridad de tipos (*Type Safety*)**. Obliga a realizar casting explícito al extraer los datos y genera riesgo de errores graves en tiempo de ejecución (*Runtime*) como un `ClassCastException` si se inserta un tipo de dato no esperado.
+
+* **Falla:** Elimina la **seguridad de tipos (*Type Safety*)**. Obliga a realizar casting explícito al extraer los datos y genera riesgo de errores graves en tiempo de ejecución (*Runtime*) como un `ClassCastException` si se inserta un tipo de dato no esperado. Es decir, le estás jurando a Java que sí se puede hacer un casting.
 
 Más adelante seguiremos hablando de la opción B con más detalle.
 
@@ -214,7 +224,7 @@ Más adelante seguiremos hablando de la opción B con más detalle.
 
 ### 3. El Corolario: Por qué nacen los Generics en Java
 
-> **Corolario de Parametrización:**  
+> **Corolario de Parametrización:**
 > *"Para que un TDA sea verdaderamente abstracto y reutilizable, debe ser capaz de recibir el TIPO de dato como un parámetro de configuración en el momento de ser instanciado."*
 
 **Java Generics (`<T>`)** resuelve esta necesidad al nivel del lenguaje:
@@ -272,9 +282,7 @@ parámetro de tipo.
 datos sin mayor esfuerzo adicional.
 
 
----
-
-## 2. La Solución Antigua vs. La Solución Moderna
+### 2. La Solución Antigua vs. La Solución Moderna
 
                     ¿Cómo almacenar cualquier tipo de dato?
                                       │
@@ -287,13 +295,28 @@ datos sin mayor esfuerzo adicional.
     - Inseguro: Errores en Runtime.              - Seguro: Errores en Compilación.
 
 
-### ¿Qué es un Genérico en Java?
+#### ¿Qué es un Genérico en Java?
 Es el mecanismo general (introducido en Java 5) que permite definir estructuras y algoritmos
 tipo "plantilla" que funcionan automáticamente sobre cualquier tipo de dato asignado a su
-parámetro de tipo, garantizando seguridad en tiempo de compilación. Hay 2 formas de usar tipos
-de datos genéricos en Java:
+parámetro de tipo, garantizando seguridad en tiempo de compilación. 
 
-- Usando la clase Object.
+Como ya se ha visto hay 2 formas de usar tipos de datos genéricos en Java:
+
+- Usando la clase Object (NOOOO, POR FAVORR).
 
 - Usando parámetros de tipo.
+
+## Clase Object para genéricos
+Como ya se mencionó, Object fue la primera forma de usar genéricos en Java. Esto sucedió
+así ya que Object es la superclase de toda clase, una referencia de Object
+puede referirse a cualquier tipo de objeto.
+
+![objectPrimero](./imgs/claseObjectPrimero.png)
+
+Sin embargo, considere los siguientes casos.
+
+![objectSegundo](./imgs/claseObjectSegundo.png)
+
+
+
 
