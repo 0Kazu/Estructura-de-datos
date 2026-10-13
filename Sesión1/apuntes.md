@@ -60,7 +60,7 @@ En programación, la abstracción ocurre en dos niveles:
 
 2. **Abstracción de Datos:** Permite definir nuevos tipos de datos enfocándonos en las operaciones que podemos realizar con ellos, sin importar cómo se almacenan en memoria. De este concepto nace el **TDA**.
 
-Se le dice **Tipo de Dato Abstracto** porque el programador que diseñará ese tipo de dato sí se cuestionará el **cómo**. Sin embargo, está destinado para que otros programadores (o incluso el mismo programador) lo usen, reduciendo todo al interés del **qué hace**.
+Se le dice **Tipo de Dato Abstracto** porque el programador que diseñará ese tipo de dato sí se cuestionará el **cómo**. Sin embargo, está destinado para que otros programadores (o incluso el mismo programador) lo usen, reduciendo todo al interés al **qué hace**.
 
 ### Tipos de Datos Abstractos (TDAs) vs. Estructuras de Datos
 
@@ -514,7 +514,7 @@ Ahora, deberá buscar el regalo en las n*n cajas que existen.
 
 Como se puede observar, este algoritmo tendrá una **complejidad O(n^2)**. Si la matriz no fuese 
 n*n, entonces, hablaríamos de una **complejidad O(n*m)**. Así, estamos hablando de una 
-**complejidad cuadrática**.
+**complejidad cuadrática**. 
 
 ### Otras complejidades
 #### Búsqueda binaria O(Log(n))
@@ -581,12 +581,328 @@ La importancia radica en que **algunos algoritmos son mejores que otros**. Por e
 de datos podría ser más eficiente que eliminar elementos). Sin embargo, en otros TDAs, puede ser
 que esas mismas operaciones tengan otro **tipo de complejidad**.
 
+### Ejemplos de análisis de desempeño
+
+#### Primer ejemplo
+
+![primerEjercicio](./../Sesion2/img/primerEjercicio.png)
+
+```Java
+function something(){   // 0 costo computacional
+  doStep1();            // O(paso a)
+  doStep2();            // O(paso b)
+}
+```
+
+Entonces: O(a) + O(b) = O(a + b) = O(1) ya que ambas son sólo llamadas a funciones.
+
+#### Segundo ejemplo
+
+![segundoEjercicio](./../Sesion2/img/segundoEjercicio.png)
+
+```Java
+function minMax1(array){   // 0 costo computacional
+  min, max <= NULL
+
+  foreach e in array
+    min = MIN(e, min)
+
+  foreach e in array
+    max = MAX(e, max)
+}
+```
+
+En orden de ejecución: O(1) + O(n) + O(n) = O(1) + O(n + n) = O(1) + O(2n) = O(n). O 
+si quieres hacer la demostración al 100%: O(1) + O(1) + O(n) + O(1) + O(n) + O(1) = 4*O(1) + 2*O(n) = O(n)
+
+#### Tercer ejemplo
+
+![tercerEjercicio](./../Sesion2/img/tercerEjercicio.png)
+
+```Java
+function minMax2(array){   // 0 costo computacional
+  min, max <= NULL
+
+  foreach e in array
+    min = MIN(e, min)
+    max = MAX(e, max)
+}
+```
+
+En orden de ejecución: O(1) + O(n) + O(1) + O(1) = 3*O(1) + O(n) = O(n)
+
+#### Cuarto ejercicio
+
+![cuartoEjercicio](./../Sesion2/img/cuartoEjercicio.png)
+
+```Java
+function intersectionSize(arrayA, arrayB){   // 0 costo computacional
+  int count = 0
+
+  for a in arrayA {  // Matriz
+    for b in ArrayB {
+      if a == b {
+        count = count + 1
+      }
+    }
+  }
+
+  return count
+}
+```
+
+En orden de ejecución: O(1) + [O(n) * O(n)] + O(1) = O(n^2) -> Considerando que ambas
+matrices son del mismo tamaño.
+
+Aunque en este curso se dijo que: O(1) + O(n) + O(n) = O(1) + O(2n) = O(n) xD.
+
+#### Quinto ejercicio
+
+![quintoEjercicio](./../Sesion2/img/quintoEjercicio.png)
+
+```Java
+function whyWouldIDoThis(array){   // 0 costo computacional
+  max = NULL
+
+  foreach a in array {
+    max = MAX(a, max)
+  }
+
+  print max
+
+  foreach a in array {
+    foreach b in array {
+      print a, b
+    }
+  }
+
+  return count
+}
+```
+
+En orden de ejecución: O(1) + O(n) + O(1) + [O(n) * O(n)] + O(1) = 3*O(1) + O(n) + O(n^2) = O(n^2)
+
+### Ejercicio de examen
+
+![ultimoEjercicio](./../Sesion2/img/ultimoEjercicio.png)
+
+- **Implementación 1**: O(log(n)) + O(1000) + O(27log(n)) = O(log(n)) + O(1000*1) + O(27log(n))
+= O(log(n)) + O(1) + O(log(n)) = O(log(n)).
+
+- **Implementación 2**: O(nlog(n)) + O(15n) + O(0.002n^2) = O(nlog(n)) + O(n) + O(n^2) = O(n^2).
+
+- **Implementación 3**: O(37n) + O(nlog(n^2)) + O(5000log(n)) = O(n) + O(2nlog(n)) + O(log(n)) = O(nlog(n))
+
+- **Implementación 4**: O(1000n^2) + O(16n) + O(2^n) = O(n^2) + O(n) + O(2^n) = O(2^n)
+
+- **Implementación 5**: O(2^10) + O(3^5) + O(100000) = O(1)
 
 
+## Recursividad
+Son un tipo particular de funciones / métodos, las cuales, en su cuerpo, se llaman
+a sí mismos. 
+
+### Intento de recursividad
+
+Analice el siguiente código:
+
+```Java
+public class RecursionExample {
+  static void recursiveMethod() {
+  System.out.println("Hello");
+    recursiveMethod();
+  }
+
+  public static void main(String[] args) {
+    recursiveMethod();
+  }
+}
+```
+
+El resultado del código adjunto es un programa que imprime "Hello" por siempre. Por lo que
+no es óptimo para nada, de hecho, es necesario que estas funciones recursivas tengan
+algún tipo de salida.
+
+Si necesitamos una función recursiva es porque se requiere realizar un mismo algoritmo
+n veces. Es decir, una cantidad finita de veces. De esta forma, en **toda función/método**
+**recursivo**, necesitas un caso base o condición de salida (Cómo saber que el algoritmo llegó a su fin).
+
+Adaptando el mismo algoritmo que retorna un saludo n veces:
+
+```Java
+public class RecursionExample {
+  static int count = 0;
+  static void recursiveMethod() {
+    count++;
+    if(count<=5){
+      System.out.println("Hello " + count);
+      recursiveMethod();
+    }
+  }
+
+  public static void main(String[] args) {
+    recursiveMethod();
+  }
+}
+```
+
+### Importancia de la recursividad -> Ok mañana, pero ¿Por qué?
+
+Hay problemas que, por naturaleza, son recursivos. Al momento
+que me den un problema en el que se vaya a ejecutar constatemente el mismo 
+proceso pensaremos en recursividad. 
+
+#### Factorial
+Un buen ejemplo de recursividad es el factorial de un número. De hecho 
+fact(n) = {1, si n = 0; n*fact(n-1), si n > 0}. Si lo implementamos en Java:
+
+```Java
+public class RecursionExample {
+  static int factorial(int n) {
+    if (n == 0) {
+      return 1; // condición de salida o caso base
+    } else {
+      return (n * factorial(n-1)); // llamada recursiva
+    }
+  }
+
+  public static void main(String[] args) {
+    System.out.println ("Factorial of 5 is: " + factorial(5));
+  }
+}
+```
+
+#### Sucesión de Fibonacci
+
+Otro ejemplo sería la **sucesión de Fibonacci**. Dicha serie comienza con los números 0 y 1. Cada nuevo
+término de la sucesión es la suma de los dos anteriores.
+
+> 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, ...
 
 
+## TDAs y estructuras lineales
+
+Hemos visto que los **tipos de datos abstractos** están compuestos de atributos
+y comportamientos. Esos comportamientos estarán definidos por valores y cada TDA
+tendrá un tipo de operación diferente (Agregar elementos, buscar elementos, eliminar elementos, ...)
+
+En los TDAs usamos el concepto de la abstracción porque nos permite concentrarnos 
+en lo escencial (Qué hará el método) para luego concentrarnos en cómo lo implementará.
+
+### Estructuras de datos lineales
+
+Las estructuras de datos lineales son conocidas porque cada elemento va uno detrás de
+otro. En este curso, los tipos de datos a emplear serán homogéneos (Si tenemos una lista
+de String, todos los elementos serán String también). **Cada elemento en una estructura**
+**de datos lineales se conoce como nodo**.
+
+De **acuerdo a su comportamiento**, los conjuntos lineales se clasifican en:
+
+- Listas.
+
+- Pilas.
+
+- Colas.
+
+- Conjuntos y mapas.
 
 
+### TDA Lista
 
+Es una colección de 0 o más elementos (Podría considerarse al infinito) del cual todos
+son del mismo tipo (Datos homogéneos). Son mucho más flexibles que los arreglos porque permiten
+trabajo "dinámico" (La estructura puede crecer o achicarse) con un grupo de elementos.
 
+Con una lista, usted puede determinar:
+
+- Crear y Eliminar.
+
+- Conocer si está vacía.
+
+- Añadir elementos y removerlos.
+
+- Consultar el primer y al último elemento.
+
+- Imprimir sus elementos en pantalla.
+
+- Buscar un elemento con cierta infromación en la lista.
+
+En Java la interfaz List corresponde a la implementación del TDA List.
+
+```Java
+interface List {
+  boolean add(Object o)
+  void add(int index, Object element)
+  boolean addAll(Collection<? extends Object> c)
+  boolean addAll(int index, Collection<? extends Object> c)
+  void clear()
+  boolean contains(Object o)
+  boolean containsAll(Collection<?> c)
+  boolean equals(Object o)
+  Object get(int index)
+  ...
+}
+```
+
+Recuerde: El TDA especifica el comportamiento pero no la implementación.
+
+![recordatorio](./../Sesion3/img/recordatorio.png)
+
+Siga la siguiente implementación de List pero con parámetros de tipo (En este curso):
+
+```Java
+public interface List<E> {
+  public boolean addFirst(E e); //Inserta el elemento e al inicio
+
+  public boolean addLast(E e); //Inserta el elemento e al final
+
+  public E removeFirst(); //remueve el elemento al inicio de la lista
+
+  public E removeLast(); // remueve el elemento al final de la lista
+
+  public int size();
+
+  public boolean isEmpty();
+
+  public void clear();
+
+  public boolean add(int index, E element); //Inserta el elemento en la posicion index
+
+  public E remove(int index); // remueve y retorna el elemento en la posicion index
+
+  public E get(int index); //retorna el elemento ubicado en la posicion index
+
+  public E set(int index, E element); //setea elemento en la posicion index
+}
+```
+
+A nivel teórico vamos a tener la clase List, pero para implementaciones concretas usaremos
+la clase ArrayList (Implementar la lista de forma estática usando arreglos). Posteriormente
+usaremos LinkedList (Implementar la lista de forma dinámica usando nodos). Así, podremos:
+
+```Java
+List a = new ArrayList();
+List b = new LinkedList();
+```
+
+Todo esto referente a la implementación de List con parámetros de tipo. Implementación usada
+en este curso.
+
+#### Tipos de Listas
+
+Las listas se pueden clasificar en:
+
+- **Lista simplemente enlazada**
+
+![simplementeEnlazada](./../Sesion3/img/simplementeEnlazada.png)
+
+El lugar del que parten las flechas se lo conoce como **puntero next**. El **primer nodo**
+es conocido como **head** (cabecera), el último nodo es conocido como **last**. Mientras que
+el último puntero se conoce como **puntero a null o nulo** (O apunta a nulo).
+
+- **Lista doblemente enlazada**
+
+![simplementeEnlazada](./../Sesion3/img/doblementeEnlazada.png)
+
+Existen 2 punteros: **previous** y **next**. Ambos nodos finales apuntan a nulo.
 
