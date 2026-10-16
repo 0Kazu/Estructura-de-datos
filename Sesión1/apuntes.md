@@ -1102,3 +1102,228 @@ public class ArrayList<E> implements List<E> {
 ```
 
 
+Taller
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.taller1;
+
+/**
+ *
+ * @author CltControl
+ */
+public class DoublyLinkedList implements List<E>{
+    private DoublyNodeList<E> header;
+    private DoublyNodeList<E> last;
+    
+    @Override
+    public boolean isEmpty(){
+        return header == null && last == null;
+    }
+    
+    public int size(){
+        int count = 0;
+        DoublyNodeList<E>
+    }
+    
+    // agregar al inicio
+    @Override
+    public boolean addFirst(E e){
+        // Validaciones
+        if (e != null){
+            DoublyNodeList<E> newNode = new DoubleNodeList<> (e);
+            newNode.setNext(header);
+            header.setPrevious(newNode);
+            header = newNode;
+        }
+    }
+    
+    // Agregar al final
+    @Override
+    public boolean addLast(E e){
+        // Validaciones
+        if (e != null){
+            
+        }
+    }
+    
+}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.taller1;
+
+/**
+ *
+ * @author CltControl
+ */
+public class LinkedList<E> implements List<E> {
+    private NodeList<E> header;
+    private NodeList<E> last;
+    // private int size = 0;
+    
+    public LinkedList(){
+        this.header = null;
+        this.last = null;
+    }
+    
+    public NodeList<E> getHeader(){
+        return header;
+    }
+    
+    public void setHeader(NodeList<E> hedaer){
+        this.header = header;
+    }
+    
+    public NodeList<E> getLast(){
+        return last;
+    }
+    
+    public void setLast(NodeList<E> last){
+        this.last = last;
+    }
+    
+    @Override
+    public boolean addFirst(E e){
+        // size++;
+        
+        if (e != null){
+            NodeList<E> newNode = new NodeList<> (e); // Crear nodo aislado
+            newNode.setNext(header); // Next será el header ahora
+            this.setHeader(newNode);
+            
+            if (last == null){
+                last = newNode;
+            }
+            
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    @Override
+    public boolean addLast(E e){
+        if (e != null){
+            NodeList<E> newNode = new NodeList<> (e);
+            
+            if(last != null){
+                last.setNext(newNode);
+            }
+        }
+    }
+    
+    NodeList<E> getPrevious(NodeList<E> node){
+        NodeList<E> previous = null;
+        NodeList<E> n;
+        
+        for (n = header; n != node; n = n.getNext()){
+            previous = n;
+        }
+        
+        return previous;
+    }
+    
+    public void recorrerHaciaAtras(){
+        NodeList<E> n; // Puntero que ayuda a posicionarse en cada uno de los nodos (pivote)
+        
+        for (n = last; n != header; n = this.getPrevious(n)){
+            System.out.println(n);
+        }
+    }
+    
+    @Override
+    public int size(){
+        int size = 0;
+        NodeList<E> n;
+        
+        for (n = header; n != null; n = n.getNext()){
+            size++;
+        }
+        
+        return size;
+    }
+    
+    
+}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.taller1;
+
+/**
+ *
+ * @author CltControl
+ */
+public class DoublyNodeList<E> {
+    private E content;
+    private DoublyNodeList<E> next;
+    private DoublyNodeList<E> previous;
+    
+}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package com.mycompany.taller1;
+
+/**
+ *
+ * @author CltControl
+ */
+public interface List<E> {
+    public boolean addFirst(E e);
+    
+    public boolean addLast(E e);
+    
+    public E removeFirst();
+    
+    public E removeLast();
+    
+    public int size();
+    
+    public boolean isEmpty();
+    
+    public void clear();
+    
+    public boolean add(int index, E element);
+    
+    public E remove(int index);
+}
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ */
+
+package com.mycompany.taller1;
+
+/**
+ *
+ * @author CltControl
+ */
+public class NodeList<E> {
+
+    private E content;
+    private NodeList<E> next;
+    
+    public NodeList(E content){
+        this.content = content;
+        this.next = null;
+    }
+    
+    public E getContent(){
+        return content;
+    }
+    
+    public void setContent(E content){
+        this.content = content;
+    }
+    
+    public NodeList<E> getNext(){
+        return next;
+    }
+    
+}
+
