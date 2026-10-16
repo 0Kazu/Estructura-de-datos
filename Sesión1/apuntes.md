@@ -906,3 +906,199 @@ el último puntero se conoce como **puntero a null o nulo** (O apunta a nulo).
 
 Existen 2 punteros: **previous** y **next**. Ambos nodos finales apuntan a nulo.
 
+- **Lista circular simplemente enlazada**
+
+![circularSimplementeEnlazada](./../Sesion3/img/circularSimplementeEnlazada.png)
+
+El último puntero apunta o tiene referencia hacia head.
+
+- **Lista circular doblemente enlazada**
+
+![circularDoblementeEnlazada](./../Sesion3/img/circularDoblementeEnlazada.png)
+
+
+Ahora ya tenemos claro el concepto de lo que debe ser una lista. Hay varias posibilidades 
+de implementación para darle vida:
+
+- **Estática o continua**: Usando arreglos de longitud variable (Arraylist en Java). Si nos pidieran entonces
+implementar una lista tal que su tamaño sea flexible y pueda manejar posiciones, entonces optamos por usar 
+dichos arreglos.
+
+- **Dinámica**: implementación dinámica con nodos (LinkedList en Java).
+
+### Implementación de arreglos con ArrayList
+En este curso, procederemos a crear nuestra propia implementación de Listas mediante arreglos
+con ArrayList.
+
+Vamos a utilizar un arreglo para implementar la interface List. Recordando que, los arreglos son una 
+secuencia de elementos (No usan nodos) continuos y adyacentes en memoria tales que cada elemento tiene
+un índice.
+
+Dado que se puede acceder directamente a una ubicación en particular mediante
+el índice del arreglo, el tiempo de acceso es contante (O(1)). Al insertar o remover un elemento
+todos los elementos restantes avanzarán o retrocederán
+
+![arreglo](./../Sesion3/img/arreglo.png)
+
+Del arreglo note que: su tamaño total o **capacity = 9** pero solo **se han usado 6 espacios**. En el peor
+de los casos, al insertar elementos debemos solucionar situaciones en la que los elementos usado del arreglo
+sean superior que la capacidad; al añadir al inicio o al final, tendremos una complejidad **O(n)**. Considere 
+también el peor de los casos referente a la inserción de un elemento en un índice en específico -> **O(1)** (Es sólo 
+reemplazar).
+
+Para una implementación más concreta, recuerde que el tamaño del arreglo es fijo. Además:
+
+- Si desea insertar un nuevo elemento:
+  * Crear un arreglo de tamaño igual al original más 1.
+  * Copiar el valor a ser insertado en la primera posición.
+  * Copiar los valores del arreglo original dentro de las posiciones restantes del nuevo arreglo.
+
+
+La implementación de ArrayList en este curso fue la siguiente:
+
+```Java
+public class ArrayList<E> implements List<E> {
+    private E[] elements = null; // Arreglo de elementos genéricos
+    
+    // Definir capacidad y tamaño efectivo
+    private int capacity = 100;
+    private int effectiveSize;
+    
+    public ArrayList(){
+        int[] a;
+        
+        a = new int[100];
+        
+        elements = (E[]) (new Object[capacity]); // única excepción casting
+        
+        effectiveSize = 0;
+    }
+    
+    @Override
+    public boolean addFirst(E e){ 
+        if (e == null){
+            return false;
+        }
+        else if (this.isEmpty()) {
+            elements[effectiveSize] = e;
+            effectiveSize++;
+            return true;
+        }
+        else if (isFull()){
+            addCapacity();
+        }
+        
+        // Desplazar
+        for (int i = effectiveSize - 1; i >= 0; i--){
+            elements[i+1] = elements[i]; // Siguiente = Anterior (Bit shifting)
+        }
+        
+        // Insertar elemento en la posición 0
+        elements[0] = e;
+        effectiveSize++;
+        return true;
+    }
+    
+    @Override
+    public boolean addLast(E e){
+        if (e == null){
+            return false;
+        }
+        if (isFull()){
+            addCapacity();
+        }
+        
+        elements[effectiveSize] = e;
+        effectiveSize++;
+        
+        // o también: elements[effectiveSize++] = e;
+        return true;
+    }
+    
+    
+    
+    private void addCapacity(){
+        // Crear arreglo temporal con otra capacidad
+        E[] tmp = (E[]) new Object[capacity * 2]; // Política de aumento: el doble en ED
+        
+        // Copiar los primeros 100 elementos al arreglo temporal
+        for (int i = 0; i < capacity; i++){
+            tmp[i] = elements[i];
+        }
+        
+        // Reemplazar el arreglo viejo
+        elements = tmp;
+        
+        // Actualizar la capacidad en caso de que se llene la memoria
+        capacity *= 2;
+    }
+    
+    @Override
+    public boolean add(int index, E element){ // Añadir por posición del arreglo
+        if (index < 0 || index > effectiveSize){
+            return false;
+        }
+        if (isFull()){
+            addCapacity();
+        }
+        for (int i = effectiveSize; i > index; i--){
+            elements[i] = elements[i - 1];
+        }
+        elements[index] = element;
+        effectiveSize++;
+        
+        
+    }
+    
+    @Override
+    public boolean isEmpty(){
+        return effectiveSize == 0;
+    }
+    
+    private boolean isFull(){
+        return effectiveSize == capacity;
+    }
+    
+    @Override
+    public E removeFirst() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E removeLast() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public int size() {
+        return effectiveSize;
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean add(int index, E element) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E remove(int index) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E get(int index) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E set(int index, E element) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+}
+```
+
+
