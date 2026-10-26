@@ -1910,12 +1910,12 @@ ya se tiene todo, pues el siguiente al último es el primero.
 Todo nodo válido, apenas esté creado debe apuntar a sí mismo en una lista circular 
 simplemente enlazada.
 
-![boomapala](./../sesion5/boomapala.png)
+![boomapala](./../Sesion5/boomapala.png)
 
 En el caso de que se requitera inserción al inicio y al final de la lista, la
 idea es la siguiente:
 
-![crazier](./../sesion5/crazier.png)
+![crazier](./../Sesion5/crazier.png)
 
 La implementación a seguir en este curso de CircularNodeList y CircularLinkedList:
 
