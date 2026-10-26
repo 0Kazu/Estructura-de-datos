@@ -154,7 +154,7 @@ Para poder programar nuestras propias versiones de `ArrayList`, `LinkedList`, `P
 
 ## De los TDAs a Java Generics
 
-### El Axioma del Contenedor
+### Lo que DEBE hacer una estructura de datos
 
 > **"La estructura y los algoritmos que gestionan los datos son totalmente independientes de la naturaleza de los datos gestionados."**
 
@@ -184,7 +184,7 @@ Escribir una sola estructura basada en `Object`. Dado que toda clase hereda de `
 
 * **Falla:** Elimina la **seguridad de tipos (*Type Safety*)**. Obliga a realizar casting explícito al extraer los datos y genera riesgo de errores graves en tiempo de ejecución (*Runtime*) como un `ClassCastException` si se inserta un tipo de dato no esperado (es decir, le estás jurando a Java que sí se puede hacer un casting).
 
-### El Corolario: Por qué nacen los Generics en Java
+### Por qué nacen los Generics en Java
 
 > **Corolario de Parametrización:**
 > *"Para que un TDA sea verdaderamente abstracto y reutilizable, debe ser capaz de recibir el TIPO de dato como un parámetro de configuración en el momento de ser instanciado."*
@@ -779,6 +779,79 @@ término de la sucesión es la suma de los dos anteriores.
 
 > 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, ...
 
+### Ejemplo 1
+
+```Java
+// Suma de los primeros N números
+// Calcula la suma de los números desde 1 hasta n usando recursión
+public static int suma(int n){
+    // Caso base
+    if (n == 1) return 1;
+
+    int suma = n + suma(n - 1);
+
+    return suma;
+}
+```
+
+### Ejemplo 2
+```Java
+// Contar dígitos de un número 
+// Cuenta cuántos dígitos tiene un número entero positivo
+public static int contar(int n){
+    if (n >= 0){
+        // Caso base
+        if (n < 10){
+            return 1;
+        }
+
+        digitos = 1 + contar(n/10);
+
+        return digitos;
+    } 
+}
+```
+
+### Ejemplo 3
+```Java
+// Invertir un número
+// Dado un número xyz -> zyx
+public static void mostrarInverso (int n){
+    System.out.print(n % 10 + "")
+
+    // Caso base
+    if (n < 10){
+        return;
+    }
+
+    // Paso recursivo
+    mostrarInverso(n/10)
+}
+```
+
+### Ejemplo 4
+```Java
+// contador de unidades, decenas, centenas, ...
+public static void descomponerNumero(int n, int pos){
+    if (pos == 0){
+        System.out.println(n + "->" );
+    }
+
+    // Caso base
+    if (n == 0) return;
+
+    String[] unidades = {"unidades", "decenas", "centenas", "millares"};
+
+    // Extraer el último dígito
+    int ultimoDigito = n % 10;
+
+    // Llamada recursiva
+    descomponerNumero(n / 10, pos + 1);
+
+    System.out.println(ultimoDigito + " " + unidades[pos] + " ");
+}
+```
+
 
 ## TDAs y estructuras lineales
 
@@ -926,11 +999,11 @@ dichos arreglos.
 
 - **Dinámica**: implementación dinámica con nodos (LinkedList en Java).
 
-### Implementación de arreglos con ArrayList
+### Implementación estática de arreglos con ArrayList
+
 En este curso, procederemos a crear nuestra propia implementación de Listas mediante arreglos
 con ArrayList.
-
-Vamos a utilizar un arreglo para implementar la interface List. Recordando que, los arreglos son una 
+Vamos a utilizar un arreglo para implementar la interface List. Recordando que los arreglos son una 
 secuencia de elementos (No usan nodos) continuos y adyacentes en memoria tales que cada elemento tiene
 un índice.
 
@@ -958,20 +1031,48 @@ La implementación de ArrayList en este curso fue la siguiente:
 
 ```Java
 public class ArrayList<E> implements List<E> {
-    private E[] elements = null; // Arreglo de elementos genéricos
+    // Arreglo de elementos genéricos
+    private E[] elements = null;
     
     // Definir capacidad y tamaño efectivo
     private int capacity = 100;
     private int effectiveSize;
     
     public ArrayList(){
-        int[] a;
+        // int[] a;
         
-        a = new int[100];
+        // a = new int[100];
+
+        // int[] a = new int[100];
         
         elements = (E[]) (new Object[capacity]); // única excepción casting
         
         effectiveSize = 0;
+    }
+
+    private void addCapacity(){
+        // Crear arreglo temporal con otra capacidad
+        E[] tmp = (E[]) new Object[capacity * 2]; // Política de aumento: el doble en ED
+        
+        // Copiar los primeros 100 elementos al arreglo temporal
+        for (int i = 0; i < capacity; i++){
+            tmp[i] = elements[i];
+        }
+        
+        // Reemplazar el arreglo viejo
+        elements = tmp;
+        
+        // Actualizar la capacidad en caso de que se llene la memoria
+        capacity *= 2;
+    }
+
+    @Override
+    public boolean isEmpty(){
+        return effectiveSize == 0;
+    }
+
+    private boolean isFull(){
+        return effectiveSize == capacity;
     }
     
     @Override
@@ -984,6 +1085,8 @@ public class ArrayList<E> implements List<E> {
             effectiveSize++;
             return true;
         }
+
+        // Si arreglo está lleno
         else if (isFull()){
             addCapacity();
         }
@@ -1015,48 +1118,22 @@ public class ArrayList<E> implements List<E> {
         return true;
     }
     
-    
-    
-    private void addCapacity(){
-        // Crear arreglo temporal con otra capacidad
-        E[] tmp = (E[]) new Object[capacity * 2]; // Política de aumento: el doble en ED
-        
-        // Copiar los primeros 100 elementos al arreglo temporal
-        for (int i = 0; i < capacity; i++){
-            tmp[i] = elements[i];
-        }
-        
-        // Reemplazar el arreglo viejo
-        elements = tmp;
-        
-        // Actualizar la capacidad en caso de que se llene la memoria
-        capacity *= 2;
-    }
-    
     @Override
     public boolean add(int index, E element){ // Añadir por posición del arreglo
-        if (index < 0 || index > effectiveSize){
+        if (index < 0 || index > effectiveSize){ // Fuera de índice
             return false;
         }
         if (isFull()){
             addCapacity();
         }
+        // Dejar espacio libre en la posición index
         for (int i = effectiveSize; i > index; i--){
             elements[i] = elements[i - 1];
         }
+
+        // Agregar ese elemento
         elements[index] = element;
         effectiveSize++;
-        
-        
-    }
-    
-    @Override
-    public boolean isEmpty(){
-        return effectiveSize == 0;
-    }
-    
-    private boolean isFull(){
-        return effectiveSize == capacity;
     }
     
     @Override
@@ -1080,7 +1157,724 @@ public class ArrayList<E> implements List<E> {
     }
 
     @Override
-    public boolean add(int index, E element) {
+    public E remove(int index) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E get(int index) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E set(int index, E element) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+}
+```
+
+Es evidente que ArrayList no es eficiente para insertar elementos.
+
+### Implementación continua de arreglos con LinkedList
+
+#### Lista simplemente enlazada
+
+En este curso, también procederemos a crear nuestra propia implementación de Listas mediante nodos
+con LinkedList.
+Vamos a utilizar linkedList para implementar la interface List. Recordando que los nodos son la unidad
+básica o contenedores de una lista enlazada. Es un objeto en memoria que guarda:
+
+- El dato o contenido real.
+
+- La referencia hacia el siguiente puntero.
+
+Se trata de una implementación flexible y potente. Los nodos ya son son adyacentes en memoria (Un nodo A
+logra un enlace con otro B, almacenando dentro la dirección de B). Al insertar, en lugar de mover
+toda la estructura (como el ArrayList), simplemente hay que enlazar el nuevo elemento a la lista.
+
+![nodo](./../sesion4/imgs/nodoSimple.png)
+
+A nivel de implementación:
+
+- Necesitamos llevar control de las posiciones del primer y el último elemento.
+
+- Las posiciones son sólo direcciones en memoria (Referencias).
+
+- La posición de un nodo estará dada por una referencia a dicho nodo.
+
+- Una lista enlazada no tiene datos predefinidos.
+
+La implementación de NodeList y LinkedList en este curso es la siguiente:
+
+```Java
+class NodeList<E> {
+    private E content;
+    private NodeList<E> next;
+
+    public NodeList(E content) {
+        this.content = content;
+        this.next = null;
+    }
+
+    public E getContent() {
+        return content;
+    }
+
+    public void setContent(E content) {
+        this.content = content;
+    }
+
+    public NodeList<E> getNext() {
+        return next;
+    }
+
+    public void setNext(NodeList<E> next) {
+        this.next = next;
+    }
+}
+```
+
+```Java
+public class LinkedList<E> implements List<E>{
+    private NodeList<E> header; // nodo header
+    private NodeList<E> last;   // nodo last
+    //private int size = 0;
+    
+    public LinkedList(){
+        this.header=null;
+        this.last=null;
+    }
+
+    public NodeList<E> getHeader() {
+        return header;
+    }
+
+    public void setHeader(NodeList<E> header) {
+        this.header = header;
+    }
+
+    public NodeList<E> getLast() {
+        return last;
+    }
+
+    public void setLast(NodeList<E> last) {
+        this.last = last;
+    }
+
+    @Override
+    public boolean addFirst(E e) { // Dado un elemento generico
+        //size++;
+        if(e!=null) {
+            NodeList<E> newNode = new NodeList<>(e); // constructor crea un nodo aislado
+            // Box<Integer> newBox = new Box<>(1000);
+            // Class<TYPE> newClass = new Class<TYPE>(value);
+
+            newNode.setNext(header); // El siguiente de ese nuevo nodo es Header
+            this.setHeader(newNode); // Actualizar el header de la lista
+
+            // Por si es la primera vez insertando
+            if (last == null) {
+                last = newNode;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addLast(E e) {
+        //size++;
+        if(e!=null){
+            NodeList<E> newNode = new NodeList<>(e);
+
+            if(last !=null){
+                last.setNext(newNode);
+            }
+
+            last=newNode;
+            
+            if(header == null){
+                header = newNode;
+            }
+            return true;
+        } else {
+            return false;
+        }  
+    }
+    
+    // OJO
+    private NodeList<E> getPrevious(NodeList<E> node){
+        NodeList<E> previous = null;
+        NodeList<E> n;
+        
+        for(n = header; n!=node; n= n.getNext()){
+            previous = n;
+        }
+        return previous;
+    }
+    
+    private void recorrerHaciAtras(){
+        NodeList<E> n;
+        
+        for (n = last; n != header; n = this.getPrevious(n)){
+            System.out.println(n);
+        }
+    }
+    
+    @Override
+    public E removeFirst() {
+        //size--;
+        if (header == null){
+            return null;
+        }
+
+        // Guardando el header
+        NodeList<E> n = header;
+        E content = header.getContent();
+
+        // El nuevo header es el segundo nodo
+        setHeader(n.getNext());
+
+        // el anterior header ahora apunta a null
+        n.setNext(null);
+
+
+        // Si la lista queda vacía
+        if (header == null){
+            last = null;
+        }
+
+        return content;
+    }
+
+    @Override
+    public E removeLast() {
+        // Lista vacía
+        if (header == null) {
+            return null; 
+        }
+        
+        E content = last.getContent();
+        
+        // Si solo hay un elemento
+        if (header == last) {
+            header = null;
+            last = null;
+            return content;
+        }
+        
+        // Si hay más de un elemento, usamos getPrevious()
+        NodeList<E> previous = getPrevious(last);
+        previous.setNext(null); // rompemos conexiones del último nodo
+        last = previous;        // Actualizamos el puntero last
+        
+        return content;
+    }
+
+    @Override
+    public int size() {
+        // return size; // O(1)
+        // primera parte declaro variables a iterar
+        // segunda parte condicion logica
+        // tercera parte instrucciones
+        //for (int i=0, j=0; i < 10 && j >8; i++){
+        //for (NodeList<E> n = header; n ! = null ; n = n.getNext()){
+        
+        // Complejidad lineal O(n) a pesar de que no es tan buena como O(1) evita que tenga que darle mantenimiento a size
+        int size = 0;
+        NodeList<E> n; //declaro un nodo viajero
+        //declaro un nodo viajero, mientras sea diferente de null, se mueve al siguiente nodo
+        
+        for (n = header ; n!= null ; n = n.getNext()) {
+            size++;
+        }
+        return size;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return header == null;
+    }
+
+    @Override
+    public void clear() {
+        header = null;
+        last = null;
+    }
+
+    @Override
+    public boolean add(int index, E e) {
+        // Validaciones
+        if (index < 0 || e == null) return false;
+        
+        // Insertar al principio
+        if (index == 0) {
+            return addFirst(e);
+        }
+        
+        // Buscamos el nodo anterior a la posición donde queremos insertar
+        NodeList<E> current = header;
+
+        // No podemos usar getPrevious porque no conocemos el nodo
+        for (int i = 0; i < index - 1; i++) {
+            // Índice fuera de límites
+            if (current == null) return false;
+
+            current = current.getNext();
+        }
+
+        // Evitar errores
+        if (current == null) return false;
+        
+        // Caso: Insertar después del último
+        if (current == last) {
+            return addLast(e);
+        }
+
+        // Inserción en el medio
+        NodeList<E> newNode = new NodeList<>(e);
+        newNode.setNext(current.getNext());
+        current.setNext(newNode);
+        return true;
+    }
+
+    @Override
+    public E remove(int index) {
+        // Validaciones
+        if (index < 0 || header == null) return null;
+        
+        // Remover el primero
+        if (index == 0) {
+            return removeFirst();
+        }
+        
+        NodeList<E> current = header;
+        NodeList<E> prev = null;
+        
+        // Buscando nodo a eliminar y su anterior
+        for (int i = 0; i < index; i++) {
+            prev = current;
+            current = current.getNext();
+            
+            // Índice fuera de límites
+            if (current == null) return null; 
+        }
+        
+        // Caso: Remover el último
+        if (current == last) {
+            return removeLast();
+        }
+        
+        // Remover en el medio: el anterior ahora apunta al siguiente del actual
+        prev.setNext(current.getNext());
+        
+        // Actual (eliminado) ahora apunta a nulo
+        current.setNext(null);
+        
+        return current.getContent();
+    }
+
+    @Override
+    public E get(int index) {
+        // Validaciones
+        if (index < 0 || header == null) return null;
+        
+        NodeList<E> current = header;
+        for (int i = 0; i < index; i++) {
+            current = current.getNext();
+
+            if (current == null) return null; // El índice era mayor al tamaño
+        }
+
+        return current.getContent();
+    }
+
+    @Override
+    public E set(int index, E element) {
+        // Validaciones
+        if (index < 0 || element == null || header == null) return null;
+        
+        NodeList<E> current = header;
+
+        for (int i = 0; i < index; i++) {
+            current = current.getNext();
+
+            // índice fuera de rango (Como en get())
+            if (current == null) return null; 
+        }
+        
+        E oldContent = current.getContent();
+        current.setContent(element); // Pisamos el dato viejo
+        return oldContent;           // Retornamos el que estaba antes
+    }
+    
+    public Iterator<E> iterator(){
+        Iterator<E> it=new Iterator<E>() {
+                NodeList<E> cursor = header;
+                
+            @Override
+            public boolean hasNext() {
+                return cursor != null;
+            }
+
+            @Override
+            public E next() {
+                E e = cursor.getContent();
+                cursor = cursor.getNext();
+                return e;
+            }
+        };
+        
+        
+        return it;
+    }
+    
+    // Ejercicios del taller
+    // 1. Método para dividir los lanzamientos de Yahtzee
+    public static LinkedList<Integer>[] dividirLanzamientos(List<Integer> lista) {
+        // Creamos el arreglo estático de tamaño 3 para los jugadores
+        LinkedList<Integer>[] resultado = new LinkedList[3];
+        
+        // Inicializamos cada posición del arreglo con una nueva LinkedList
+        for (int i = 0; i < 3; i++) {
+            resultado[i] = new LinkedList<Integer>();
+        }
+        
+        int turno = 0; // 0 = Jugador 1, 1 = Jugador 2, 2 = Jugador 3
+        
+        // Recorremos la lista usando un foreach
+        for (Integer lanzamiento : lista) {
+            // addLast --> O(1)
+            resultado[turno].addLast(lanzamiento); 
+            
+            // La clave del ejercicio es avanzar la variable turno
+            // Avanzamos el turno usando aritmética modular (0, 1, 2, 0, 1, 2...)
+            turno = (turno + 1) % 3;
+        }
+        
+        return resultado;
+    }
+    // De dividirLanzamientos se puede evidenciar una complejidad O(n). No contamos
+    // con complejidad cuadrática ya que no tenemos for anidados.
+
+
+    // 2. Método para obtener el historial de pedidos de un cliente
+    public static List<String> getPedidosPorCliente(List<Pedido> listaPedidos, String cliente) {
+        // Lista de pedidos general por retornar
+        LinkedList<String> historialProductos = new LinkedList<>();
+        
+        // Validaciones
+        if (listaPedidos == null || cliente == null) {
+            // Lista vacia 
+            return historialProductos;
+        }
+
+        // Recorremos listaPedidos con un foreach
+        for (Pedido pedido : listaPedidos) {
+            // Verificamos si este pedido le pertenece al cliente que buscamos
+            // En Java equals() compara directamente el contenido (no el puntero)
+            if (cliente.equals(pedido.getCliente())) {
+                // Sacamos la lista de productos de este pedido en particular
+                List<String> productosDelPedido = pedido.getProductos();
+                
+                // Recorremos los productos y los agregamos al historial general
+                if (productosDelPedido != null) {
+                    for (String producto : productosDelPedido) {
+                        historialProductos.addLast(producto);
+                    }
+                }
+            }
+        }
+        
+        return historialProductos;
+    }
+    // Por cierto, la complejidad de getPedidosPorCliente es O(n^2)
+
+
+    // 3. Método para comparar carteras de inversión y sumar menores
+    public static LinkedList<Integer> sumarMenores(LinkedList<Integer> listaA, LinkedList<Integer> listaB) {
+        LinkedList<Integer> resultado = new LinkedList<>();
+        
+        // Validaciones
+        if (listaA == null || listaB == null) {
+            return resultado;
+        }
+
+        // Iteramos con foreach la lista A
+        for (Integer umbral : listaA) {
+            int suma = 0;
+
+            // Verificamos con CADA valor de B
+            for (Integer valorB : listaB) {
+                // Identificar transacciones menor a "umbral"
+                if (valorB != null && valorB < umbral) {
+                    suma += valorB;
+                }
+            }
+            
+            // Añadimos
+            resultado.addLast(suma);
+        }
+
+        return resultado;
+    }
+    // Este método implica una complejidad de O(n^2)
+
+
+    // 4. Método principal para IoT (IoT)
+    public static List<String> getStringsShorterThan(List<String> inputList, int k) {
+        LinkedList<String> resultado = new LinkedList<>();
+        
+        // Validación
+        if (inputList == null && k > 0) {
+            return resultado;
+        }
+        
+        // Casting
+        LinkedList<String> miLista = (LinkedList<String>) inputList;
+
+        // Método recursivo
+        filtrarRecursivo(miLista.getHeader(), k, resultado);
+        
+        return resultado;
+    }
+
+    private static void filtrarRecursivo(NodeList<String> actual, int k, LinkedList<String> resultado) {
+        // Caso de salida o base: Si el nodo es null, llegamos al final de la lista
+        if (actual == null) {
+            return;
+        }
+        
+        // Procesamos el nodo en el que estamos parados
+        String texto = actual.getContent();
+        
+        // Si el texto cumple la condición, lo metemos a la lista resultado
+        if (texto != null && texto.length() < k) {
+            resultado.addLast(texto);
+        }
+        
+        // Recursión: lo mismo pero con el siguiente nodo
+        filtrarRecursivo(actual.getNext(), k, resultado);
+    }
+
+    @Override
+    public String toString() {
+        if (header == null) return "";
+
+        String s="";
+        for (NodeList<E> n=header; n!=null; n=n.getNext()) {
+            s+=n.getContent();
+
+            if (n.getNext() != null) {
+                s += ", ";
+            }
+        }
+        return s;
+    }
+}
+```
+
+#### Lista doblemente enlazada
+
+En las listas simplemente enlazadas nosotros podemos avanzar en un sólo sentido. En las doblemente, 
+se puede avanzar hacia la derecha o la izquierda. En estas listas cada nodo tiene:
+
+- Un predecesor, excepto el primero.
+
+- Un sucesor, excepto el último.
+
+Es decir, cada nodo ya no tiene un sólo enlace, tiene dos, hacia el siguiente (next) y
+hacia el anterior (previous).
+
+![doblementeEnlazada](./../sesion5/ejemploDoblementeEnlazada.png)
+
+Al querer acceder a un elemento en este tipo de listas, en el peor de los casos, sería
+una complejidad de O(n/2) = O(n). Por otro lado, insertar al final o al inicio O(1).
+
+![cuando](./../sesion5/cuando.png)
+
+Al querer insertar nodos (First pos y Last pos), es exactamente el mismo algoritmo anterior 
+sólo que ahora debemos asignar 2 nodos (Next y previous).
+
+![inicioFinal](./../sesion5/insertarInicio.png)
+
+Ahora, para insertar entre en la lista, nuevamente necesitamos establecer 2 conexiones; nodo
+previous y nodo next.
+
+![insertarEntre](./../Sesion5/insertarEntre.png)
+
+Para eliminar nodos, simplemente debemos remover las conexiones del nodo que queremos
+eliminar y restablecer las conexiones para que no hayan nodos sin conexiones.
+
+![eliminar](./../Sesion5/eliminarNodos.png)
+
+En este curso, la implementación de la lista doblemente enlazada y su respectivo nodo:
+
+```Java
+public class DoublyNodeList<E> {
+    private E content;
+    private DoublyNodeList<E> next;     // Un next
+    private DoublyNodeList<E> previous; // Un previous
+    
+    public DoublyNodeList(E content){
+        this.content = content;
+        this.next = null;
+        this.previous=null;
+    }
+    
+    public E getContent() {
+        return content;
+    }
+
+    public void setContent(E content) {
+        this.content = content;
+    }
+
+    public DoublyNodeList<E> getNext() {
+        return next;
+    }
+
+    public void setNext(DoublyNodeList<E> next) {
+        this.next = next;
+    }
+
+    public boolean getPrevious(DoublyNodeList<E> node){
+        return previous;
+    }
+
+    public void setPrevious(DoublyNodeList<E> previous) {
+        this.previous = previous;
+    }
+    
+}
+```
+
+```Java
+public class DoublyLinkedList<E> implements List<E> {
+    
+    private DoublyNodeList<E> header;
+    private DoublyNodeList<E> last;
+    
+    public DoublyLinkedList(){
+        this.header = null;
+        this.last = null;
+    }
+
+    public boolean isEmpty(){
+        return header == null && last == null;
+    }
+    
+    public int size() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    public DoublyNodeList<E> getHeader() {
+        return header;
+    }
+
+    public void setHeader(DoublyNodeList<E> header) {
+        this.header = header;
+    }
+
+    public DoublyNodeList<E> getLast() {
+        return last;
+    }
+
+    public void setLast(DoublyNodeList<E> last) {
+        this.last = last;
+    }
+    
+    public void getPrevious(NodeList<E> node){
+        return previous;
+    }
+   
+    private void recorrerHaciaAtras(){
+        DoublyNodeList<E> n;
+        for (n = last ; n != header; n = n.getPrevious()){
+            // System.Out.println(n);
+        }
+    }
+    
+    public boolean addFirst(E e)
+    {
+        if (e != null){
+            // Nodo a insertar
+            DoublyNodeList<E> newNode = new DoublyNodeList<>(e);
+            newNode.setNext(header);
+            header.setPrevious(newNode);
+            this.setHeader(newNode);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean addLast(E e)
+    {
+        if (e != null){
+            DoublyNodeList<E> newNode = new DoublyNodeList<>(e);
+            newNode.setPrevious(last);
+            last.setNext(newNode);
+            this.setLast(newNode);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean addAt(E e, int pos)
+    {
+        if (e != null && pos >= 0 && pos < this.size()) {
+            DoublyNodeList<E> newNode = new DoublyNodeList<>(e);
+            
+            DoublyNodeList<E> p = header;
+            
+            for(int i=0; i < pos ; i ++){
+                p = p.getNext();
+            }
+            newNode.setNext(p.getNext());
+            p.setNext(newNode);
+            
+            newNode.setPrevious(p);
+            newNode.getNext().setPrevious(newNode);
+           
+        }
+        return false;
+    }
+    
+    public E removeElement (int pos){
+        DoublyNodeList<E> p = header;
+        
+        for(int i=0; i < pos; i++){
+            p = p.getNext();
+        }
+        
+        p.getPrevious().setNext(p.getNext());
+        p.getNext().setPrevious(p.getPrevious());
+        
+        p.setNext(null);
+        p.setPrevious(null);
+        
+        return p.getContent();
+        }
+
+    @Override
+    public E removeFirst() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E removeLast() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void add(int index, E element) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
@@ -1101,216 +1895,38 @@ public class ArrayList<E> implements List<E> {
 }
 ```
 
+#### Lista circular simplemente enlazada
 
-Taller
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.taller1;
+Hasta ahora hemos visto un avance en las listas sólo a la derecha (siguiente) y,
+de cierta forma, limitadas hasta su último nodo Last. Existen ocasiones en las que no 
+sólo queremos implementar listas de esa forma sino que, por ejemplo, se pueda avanzar
+ilimitadamente, es decir, del último nodo pasar al primero.
 
-/**
- *
- * @author CltControl
- */
-public class DoublyLinkedList implements List<E>{
-    private DoublyNodeList<E> header;
-    private DoublyNodeList<E> last;
-    
-    @Override
-    public boolean isEmpty(){
-        return header == null && last == null;
-    }
-    
-    public int size(){
-        int count = 0;
-        DoublyNodeList<E>
-    }
-    
-    // agregar al inicio
-    @Override
-    public boolean addFirst(E e){
-        // Validaciones
-        if (e != null){
-            DoublyNodeList<E> newNode = new DoubleNodeList<> (e);
-            newNode.setNext(header);
-            header.setPrevious(newNode);
-            header = newNode;
-        }
-    }
-    
-    // Agregar al final
-    @Override
-    public boolean addLast(E e){
-        // Validaciones
-        if (e != null){
-            
-        }
-    }
-    
-}
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.taller1;
+![circularS](./../sesion5/circulaSimplemente.png)
 
-/**
- *
- * @author CltControl
- */
-public class LinkedList<E> implements List<E> {
-    private NodeList<E> header;
-    private NodeList<E> last;
-    // private int size = 0;
-    
-    public LinkedList(){
-        this.header = null;
-        this.last = null;
-    }
-    
-    public NodeList<E> getHeader(){
-        return header;
-    }
-    
-    public void setHeader(NodeList<E> hedaer){
-        this.header = header;
-    }
-    
-    public NodeList<E> getLast(){
-        return last;
-    }
-    
-    public void setLast(NodeList<E> last){
-        this.last = last;
-    }
-    
-    @Override
-    public boolean addFirst(E e){
-        // size++;
-        
-        if (e != null){
-            NodeList<E> newNode = new NodeList<> (e); // Crear nodo aislado
-            newNode.setNext(header); // Next será el header ahora
-            this.setHeader(newNode);
-            
-            if (last == null){
-                last = newNode;
-            }
-            
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    @Override
-    public boolean addLast(E e){
-        if (e != null){
-            NodeList<E> newNode = new NodeList<> (e);
-            
-            if(last != null){
-                last.setNext(newNode);
-            }
-        }
-    }
-    
-    NodeList<E> getPrevious(NodeList<E> node){
-        NodeList<E> previous = null;
-        NodeList<E> n;
-        
-        for (n = header; n != node; n = n.getNext()){
-            previous = n;
-        }
-        
-        return previous;
-    }
-    
-    public void recorrerHaciaAtras(){
-        NodeList<E> n; // Puntero que ayuda a posicionarse en cada uno de los nodos (pivote)
-        
-        for (n = last; n != header; n = this.getPrevious(n)){
-            System.out.println(n);
-        }
-    }
-    
-    @Override
-    public int size(){
-        int size = 0;
-        NodeList<E> n;
-        
-        for (n = header; n != null; n = n.getNext()){
-            size++;
-        }
-        
-        return size;
-    }
-    
-    
-}
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.taller1;
+Así, no es necesario mantener un control de primero y del último. Solo con el último
+ya se tiene todo, pues el siguiente al último es el primero.
 
-/**
- *
- * @author CltControl
- */
-public class DoublyNodeList<E> {
+Todo nodo válido, apenas esté creado debe apuntar a sí mismo en una lista circular 
+simplemente enlazada.
+
+![boomapala](./../sesion5/boomapala.png)
+
+En el caso de que se requitera inserción al inicio y al final de la lista, la
+idea es la siguiente:
+
+![crazier](./../sesion5/crazier.png)
+
+La implementación a seguir en este curso de CircularNodeList y CircularLinkedList:
+
+```Java
+public class CircularNodeList<E> {
     private E content;
-    private DoublyNodeList<E> next;
-    private DoublyNodeList<E> previous;
+    private CircularNodeList<E> next;
     
-}
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.taller1;
-
-/**
- *
- * @author CltControl
- */
-public interface List<E> {
-    public boolean addFirst(E e);
-    
-    public boolean addLast(E e);
-    
-    public E removeFirst();
-    
-    public E removeLast();
-    
-    public int size();
-    
-    public boolean isEmpty();
-    
-    public void clear();
-    
-    public boolean add(int index, E element);
-    
-    public E remove(int index);
-}
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
-package com.mycompany.taller1;
-
-/**
- *
- * @author CltControl
- */
-public class NodeList<E> {
-
-    private E content;
-    private NodeList<E> next;
-    
-    public NodeList(E content){
-        this.content = content;
-        this.next = null;
+    public CircularNodeList(E content){
+        this.content=content;
+        this.next=this; // Instancia de un nodo el next ya no apunta a null sino a si mismo
     }
     
     public E getContent(){
@@ -1321,9 +1937,90 @@ public class NodeList<E> {
         this.content = content;
     }
     
-    public NodeList<E> getNext(){
+    public CircularNodeList<E> getNext(){
         return next;
     }
     
+    public void setNext(CircularNodeList<E> next){
+        this.next = next;
+    }
 }
+```
+
+```Java
+public class CircularLinkedList<E> implements List<E> {
+    
+    private CircularNodeList<E> last;
+    
+    public CircularNodeList<E> getLast(){
+        return last;
+    }
+    
+     public CircularNodeList<E> getHeader(){
+        return last.getNext();
+    }
+    
+    public void setLast(CircularNodeList<E> last){
+        this.last = last;
+    }
+    
+    @Override
+    public boolean addFirst(E e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean addLast(E e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E removeFirst() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E removeLast() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public int size() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public boolean isEmpty() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void add(int index, E element) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E remove(int index) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E get(int index) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public E set(int index, E element) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+   
+}
+```
+
+
 
