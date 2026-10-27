@@ -1676,7 +1676,7 @@ public class LinkedList<E> implements List<E>{
 }
 ```
 
-#### Lista doblemente enlazada
+#### Listas doblemente enlazadas
 
 En las listas simplemente enlazadas nosotros podemos avanzar en un sólo sentido. En las doblemente, 
 se puede avanzar hacia la derecha o la izquierda. En estas listas cada nodo tiene:
@@ -2021,6 +2021,200 @@ public class CircularLinkedList<E> implements List<E> {
    
 }
 ```
+
+## La interfaz Iterable
+
+De los ejemplos anteriores ya hemos visto que para recorrer elementos dentro
+de un ArrayList o LinkedList usamos un bucle for. Sin embargo, existen formas más 
+eficientes de **iterar en cada elemento**.
+
+Un Iterador es como un puntero laser o un cursor virtual que va recorriendo tus 
+datos elemento por elemento. Imagina que tienes una lista y no quieres preocuparte por 
+cómo está guardada internamente (si usa arreglos o nodos enlazados). El iterador te 
+da una forma universal y segura de decir: "Dame el siguiente elemento hasta que te quedes 
+sin datos".
+
+Los iteradores permiten el uso de una versión mejorada de lazo for. A este tipo de lazo
+se lo conoce como for-each.
+
+```Java
+for (Item item: customDataStructure) {
+    // do stuff
+}
+```
+
+### Ejemplo de una lista ITERABLE
+
+![iterator](./Sesion7/iterator.png)
+
+> Note que son diferentes instancias de Iterator. Asi que diferentes listas, diferentes iteradores.
+
+
+### ¿Cómo implementamos Iterable?
+
+Lo que permite que la Lista se pueda iterar es la **interfaz Iterable** con ayuda de un
+**Iterator**. Para implementar la interfaz Iterable en nuestra propia clase:
+
+1. Implementar la interface Iterable (La que me permite iterar en la lista). 
+
+2. Crear una clase que implemente la interface Iterable (Con qué voy a iterar).
+
+Estructura general de la clase contenedora (En la que se va a iterar):
+
+```Java
+class CustomDataStructure<E> implements Iterable<E> { // En mi clase se PUEDE iterar
+    // Código y atributos de la estructura de datos
+
+    @Override
+    public Iterator<E> iterator() {
+        return new CustomIterator<E>(this); // Retorna una nueva instancia
+    }
+}
+```
+
+Estructura general del iterador personalizado (El iterador):
+
+```Java
+class CustomIterator<E> implements Iterator<E> { // Mi clase PUEDE ser un iterador
+    
+    // Constructor: recibe la estructura y configura el cursor inicial
+    CustomIterator(CustomDataStructure<E> obj) {
+        // Inicialización del cursor
+    }
+
+    @Override
+    public boolean hasNext() {
+        // Devuelve true si el cursor no ha llegado al final
+    }
+
+    @Override
+    public E next() {
+        // Obtiene el elemento actual y mueve el cursor
+    }
+}
+```
+
+### Las dos interfaces: Iterable vs Iterator
+
+Para entender cómo funciona en Java, hay que diferenciar estos dos conceptos:
+
+- Iterable<E> (El contenedor): Es una interfaz que dice "Mi estructura de datos se puede 
+recorrer". Al implementarla, habilitas el uso del famoso bucle for-each.
+
+- Iterator<E> (El control remoto): Es el objeto real que lleva el rastreo de dónde estamos 
+parados durante el recorrido.
+
+```
+Estructura de Datos (**implementa Iterable**)
+       │
+       └───> Método iterator() ───> Crea un objeto Iterator (el cursor)
+```
+
+#### Los dos métodos de Iterator
+
+Cualquier objeto que sea un Iterator debe responder dos preguntas fundamentales:
+
+1. `hasNext()`: ¿Aún queda algún elemento más adelante? (Retorna true o false).
+
+2. `next()`: Retorna el elemento actual y avanza el cursor un paso hacia adelante.
+
+Un ejemplo sobre cómo recorrer manualmente una lista con Iterator:
+
+```Java
+// miLista implementa 'Iterable', así que TIENE el método .iterator()
+Iterator<String> miCursor = miLista.iterator(); // Nace el cursor al inicio
+
+// miCursor es de tipo 'Iterator', así que TIENE .hasNext() y .next()
+while (miCursor.hasNext()) {         // 1. ¿Hay siguiente?
+    String elemento = miCursor.next(); // 2. Dame el valor y avanza el cursor
+    System.out.println(elemento);
+}
+```
+
+Por detrás, Java convierte este for-each en el bucle while con Iterator del ejemplo
+de arriba:
+
+```Java
+for (String elemento : miLista) {
+    System.out.println(elemento);
+}
+```
+
+### Iterator<E>
+
+Un Iterator es una abstracción que da acceso a los elementos de una lista sin exponer 
+su estructura interna (no necesitas manipular nodos ni llamar a métodos internos 
+como getContent). Se encuentra en el paquete java.util y es una interfaz parametrizada 
+por tipo (Iterator<E>).
+
+| Método | Tipo de retorno | Función |
+| :--- | :--- | :--- |
+| `hasNext()` | `boolean` | Revisa si existe un elemento siguiente en la colección antes de avanzar. |
+| `next()` | `E` | Devuelve el elemento actual y **avanza el cursor** al siguiente. |
+| `remove()` | `void` | *(Opcional)* Elimina el último elemento devuelto. Por defecto lanza `UnsupportedOperationException`. |
+
+
+### ¿Cómo puedo implementar mi propio Iterator?
+
+Antes de implementarlo, existen 4 reglas del método .iterator():
+
+1. Debe retornar una instancia concreta que implemente Iterator<E>.
+
+2. Dicha instancia es la encargada de guardar el estado de la iteración 
+(saber en qué índice o nodo va el recorrido).
+
+3. Debe instanciar un nuevo iterador en cada llamada. Nunca debe retornar 
+la misma instancia dos veces, de lo contrario se generarían conflictos si existen 
+dos bucles ejecutándose al mismo tiempo sobre la misma lista.
+
+Para implementar un Iterador en Java tenemos dos formas principales de escribir 
+la lógica del iterador para nuestra propia estructura de datos: 
+
+#### Opción A: Clase Anónima (La más limpia y usada)
+
+Creas la instancia del iterador directamente dentro del método `iterator()`:
+
+```Java
+@Override
+public Iterator<E> iterator() {
+    Iterator<E> it = new Iterator<E>() {
+        // Implementación directa de los métodos de la interfaz
+        @Override
+        public boolean hasNext() { ... }
+
+        @Override
+        public E next() { ... }
+    };
+    return it; 
+}
+```
+
+#### Opción B: Clase aparte, dedicada que implemente Iterator 
+
+```Java
+public class MyIterator<E> implements Iterator<E> {
+    // Implementación de hasNext() y next()
+}
+
+@Override
+public Iterator<E> iterator() {
+    return new MyIterator<E>(); // Instanciación directa
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

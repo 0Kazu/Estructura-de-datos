@@ -95,9 +95,73 @@ public class ArrayList<E> implements List<E>{
     }
 
     public E remove(int index){
-        E eRemove = null;
+        if (!isEmpty() && index >= 0 && index < effectiveSize && isEmpty()){
+            throw new IndexOutOfBoundsException("Error de índice");
+        }
+        else if (index == 0) return removeFirst();
+        else if (index == effectiveSize - 1) return removeLast();
+        else {
+            eRemove = elements[index];
 
-        
+            for (int i = index; i < effectiveSize - 1; i++) {
+                elements[i] = elements[i + 1];
+            }
+
+            elements[effectiveSize - 1] = null;
+            effectiveSize--;
+        }
+
+        return eRemove;
+    }
+
+    @Override
+    public E removeFirst(){
+        if (isEmpty()) return null;
+
+        E eRemove = elements[0];
+
+        for (int i = 0; i < effectiveSize - 1; i++){
+            elements[i] = elements[i + 1];
+        }
+
+        elements[effectiveSize - 1] = null;
+        effectiveSize--;
+
+        return eRemove;
+    }
+
+    @Override
+    public E removeLast(){
+        if (isEmpty()) return null;
+
+        E eRemove = elements[effectiveSize - 1];
+
+        elements[effectiveSize - 1] = null;
+        effectiveSize--;
+
+        return eRemove;
+    }
+
+    public ArrayList<El[]> runLengthEncodeConsecutive(){
+        ArrayList<El[]> respuesta = new ArrayList<>();
+
+        if (isEmpty()) return respuesta;
+
+        E current = elements[0];
+        int count = 0;
+
+        for (int i = 0; i < effectiveSize; i++){
+            if (primero.equals(elements[i])){
+                count++;
+            }
+            else{
+                respuesta.addLast(new Object[] {current, count});
+
+                count = 1;
+            }
+        }
+
+        respuesta.addLast(new Object[] {current, count});
     }
 }
 
