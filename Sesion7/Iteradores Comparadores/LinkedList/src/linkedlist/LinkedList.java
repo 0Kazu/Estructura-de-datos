@@ -2,6 +2,7 @@ package linkedlist;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  *
@@ -97,6 +98,27 @@ public class LinkedList<E> implements List<E>{
     public E removeLast() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    public void removeDuplicates() {
+        NodeList<E> current = header;
+
+        while (current != null) {
+            NodeList<E> current2 = current;
+
+            // Compara current con todos los nodos que vienen después de él
+            while (current2.getNext() != null) {
+                if (Objects.equals(current.getContent(), current2.getNext().getContent())) {
+                    // Elimina el nodo duplicado saltabilizándolo
+                    current2.setNext(current2.getNext().getNext());
+                } else {
+                    current2 = current2.getNext();
+                }
+            }
+            
+            // Avanza el pivote UNA SOLA VEZ al final del bucle exterior
+            current = current.getNext();
+    }
+}
 
     @Override
     public int size() {
