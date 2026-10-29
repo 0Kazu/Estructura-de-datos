@@ -33,7 +33,7 @@ public class DoublyNodeList<E> {
     }
 
     public boolean getPrevious(DoublyNodeList<E> node){
-        return previous;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void setPrevious(DoublyNodeList<E> previous) {

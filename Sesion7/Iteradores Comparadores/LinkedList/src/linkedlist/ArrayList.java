@@ -1,5 +1,6 @@
 package linkedlist;
 
+import java.util.Comparator;
 import java.util.Iterator;
 
 /**
@@ -23,6 +24,21 @@ public class ArrayList<E> implements List<E>{
         elements = (E[])(new Object[capacity]); // SI FUNCIONA con Casting permitido con el arrayList
         effectiveSize = 0;
     }
+
+    @Override 
+    public List<E> findIntersection(List<E> another, Comparator<E> cmp){
+        List<E> resultado = new ArrayList<>();
+
+        for (E e: this){
+            for (E otherList: another){
+                if (cmp.compare(e, otherList) == 0){
+                    resultado.addLast(e);
+                }
+            }
+        }
+
+        return resultado;
+    }
     
     private boolean isFull(){
         return effectiveSize == capacity;
@@ -30,7 +46,6 @@ public class ArrayList<E> implements List<E>{
    
     @Override
     public boolean addFirst(E e) {
-        
         // no se insertan nulos
         if(e==null){
             return false;
@@ -143,20 +158,21 @@ public class ArrayList<E> implements List<E>{
     }
     
     public Iterator<E> iterator(){
-            Iterator<E> it=new Iterator<E>() {
-                int cursor = 0;
-                @Override
-                public boolean hasNext() {
-                    return cursor < effectiveSize;
-                }
+        Iterator<E> it = new Iterator<E>() {
+            int cursor = 0;
 
-                @Override
-                public E next() {
-                    E e=elements[cursor];
-                    cursor++;
-                    return e;
-                }
-            };
+            @Override
+            public boolean hasNext() {
+                return cursor < effectiveSize;
+            }
+
+            @Override
+            public E next() {
+                E e=elements[cursor];
+                cursor++;
+                return e;
+            }
+        };
         return it;   
     }
 }

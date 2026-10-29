@@ -1,5 +1,8 @@
 package linkedlist;
 
+import java.util.Comparator;
+import java.util.Iterator;
+
 /**
  * Profesora: Adriana Collaguazo
  * Lista doblemente enlazada
@@ -21,6 +24,10 @@ public class DoublyLinkedList<E> implements List<E> {
     public int size() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public Iterator<E> iterator(){
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
     public DoublyNodeList<E> getHeader() {
         return header;
@@ -39,13 +46,11 @@ public class DoublyLinkedList<E> implements List<E> {
     }
     
     public void getPrevious(NodeList<E> node){
-        return previous;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-   
-    private void recorrerHaciaAtras(){
-        DoublyNodeList<E> n;
-        for (n = last ; n != header; n = n.getPrevious()){
-        }
+
+    public List<E> findIntersection(List<E> another, Comparator<E> cmp){
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
     public boolean addFirst(E e)
@@ -93,20 +98,8 @@ public class DoublyLinkedList<E> implements List<E> {
     }
     
     public E removeElement (int pos){
-        DoublyNodeList<E> p = header;
-        
-        for(int i=0; i < pos; i++){
-            p = p.getNext();
-        }
-        
-        p.getPrevious().setNext(p.getNext());
-        p.getNext().setPrevious(p.getPrevious());
-        
-        p.setNext(null);
-        p.setPrevious(null);
-        
-        return p.getContent();
-        }
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     @Override
     public E removeFirst() {
@@ -124,7 +117,7 @@ public class DoublyLinkedList<E> implements List<E> {
     }
 
     @Override
-    public void add(int index, E element) {
+    public boolean add(int index, E element) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

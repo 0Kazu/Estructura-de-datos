@@ -1,11 +1,23 @@
 package linkedlist;
 
+import java.util.Comparator;
+import java.util.Iterator;
+
 /**
  * Profesora: Adriana Collaguazo Jaramillo
  * Listas Circulares simplemente enlazadas
  */
 
 public class CircularLinkedList<E> implements List<E> {
+
+    public List<E> findIntersection(List<E> another, Comparator<E> cmp){
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override 
+    public Iterator<E> iterator(){
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
     private CircularNodeList<E> last;
     
@@ -57,7 +69,7 @@ public class CircularLinkedList<E> implements List<E> {
     }
 
     @Override
-    public void add(int index, E element) {
+    public boolean add(int index, E element) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

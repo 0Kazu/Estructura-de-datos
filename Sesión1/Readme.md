@@ -2068,7 +2068,7 @@ class CustomDataStructure<E> implements Iterable<E> { // En mi clase se PUEDE it
 
     @Override
     public Iterator<E> iterator() {
-        return new CustomIterator<E>(this); // Retorna una nueva instancia
+        return new CustomIterator<E>(this); // Retorna una nueva instancia de un ITERATOR
     }
 }
 ```
@@ -2113,7 +2113,7 @@ Estructura de Datos (**implementa Iterable**)
 
 #### Los dos métodos de Iterator
 
-Cualquier objeto que sea un Iterator debe responder dos preguntas fundamentales:
+Cualquier objeto que sea un Iterator **(Que implemente Iterator)** debe responder dos preguntas fundamentales:
 
 1. `hasNext()`: ¿Aún queda algún elemento más adelante? (Retorna true o false).
 
@@ -2143,9 +2143,9 @@ for (String elemento : miLista) {
 
 ### Iterator<E>
 
-Un Iterator es una abstracción que da acceso a los elementos de una lista sin exponer 
-su estructura interna (no necesitas manipular nodos ni llamar a métodos internos 
-como getContent). Se encuentra en el paquete java.util y es una interfaz parametrizada 
+Un Iterator es una abstracción que da acceso a los elementos de una lista sin exponer
+su estructura interna (no necesitas manipular nodos ni llamar a métodos internos
+como getContent). Se encuentra en el paquete java.util y es una interfaz parametrizada
 por tipo (Iterator<E>).
 
 | Método | Tipo de retorno | Función |
@@ -2155,11 +2155,11 @@ por tipo (Iterator<E>).
 | `remove()` | `void` | *(Opcional)* Elimina el último elemento devuelto. Por defecto lanza `UnsupportedOperationException`. |
 
 
-### ¿Cómo puedo implementar mi propio Iterator?
+### ¿Cómo puedo implementar mi propio .iterator()
 
-Antes de implementarlo, existen 4 reglas del método .iterator():
+Existen 4 reglas del método .iterator():
 
-1. Debe retornar una instancia concreta que implemente Iterator<E>.
+1. Debe retornar una instancia concreta que **implemente Iterator<E>**.
 
 2. Dicha instancia es la encargada de guardar el estado de la iteración 
 (saber en qué índice o nodo va el recorrido).
@@ -2203,11 +2203,448 @@ public Iterator<E> iterator() {
 }
 ```
 
+### Ejemplos
 
+Recuerde la implementación de List<T> para este curso. Ahora List va a 
+heredar de Iterable (No puede usarse implements porque una interfaz
+NO puede implementar otra interfaz):
 
+```Java
+package linkedlist;
+import java.util.Comparator;
 
+public interface List<E> extends Iterable<E>{ // EXTENDS
 
+    public boolean addFirst(E e); //Inserta el elemento e al inicio
+            
+    public boolean addLast(E e); //Inserta el elemento e al final
+            
+    public E removeFirst(); //remueve el elemento al inicio de la lista
+    
+    public E removeLast(); // remueve el elemento al final de la lista
+    
+    public int size();
+    
+    public boolean isEmpty();
+    
+    public void clear();
+            
+    public void add(int index, E element); //Inserta el elemento en la posicion index
+            
+    public E remove(int index); // remueve y retorna el elemento en la posicion index
+    
+    public E get(int index); //retorna el elemento ubicado en la posicion index
+    
+    public E set(int index, E element); //setea elemento en la posicion index
 
+    public List<E> findIntersection(List<E> another); // Note esta función (COMPARATOR)
+    
+    // public List<E> findIntersection(List<E> another, Comparator<E> cmp); // <---
+    
+}
+```
+
+Ahora, en ArrayList, procedemos a reescribir el método iterator() de la 
+siguiente forma:
+
+```Java
+@Override
+public Iterator<E> iterator(){
+    Iterator<E> it=new Iterator<E>() {
+        int cursor = 0;
+
+        @Override
+        public boolean hasNext() {
+            return cursor < effectiveSize;
+        }
+
+        @Override
+        public E next() {
+            E e=elements[cursor];
+            cursor++;
+            return e;
+        }
+    };
+    return it;   
+}
+```
+
+En un Main de prueba tendríamos:
+
+```Java
+    List<Integer> l1= new ArrayList<>();
+    l1.addFirst(0);
+    l1.addFirst(1);
+    l1.addFirst(2);
+    l1.addFirst(3);
+
+    List<Integer> list= new ArrayList<>();
+    list.addLast(1);
+    list.addLast(2);
+    list.addLast(3);
+    list.addLast(4);
+
+    Iterator<Integer> it = l1.iterator();
+
+    //Equivalencias
+    for (Integer n : list){
+        System.out.println(n);
+    }
+        
+    while(it.hasNext()){
+        Integer n = it.next();
+        System.out.println(n);
+    }
+
+// Output
+// 1
+// 2
+// 3
+// 4
+// 
+// 3
+// 2
+// 1
+// 0
+```
+
+También lo podemos implementar con LinkedList. En LinkedList, reescribimos
+el método .iterator():
+
+```Java
+@Override
+public Iterator<E> iterator(){
+    Iterator<E> it = new Iterator<E>() {
+            NodeList<E> cursor = header;
+                
+        @Override
+        public boolean hasNext() {
+            return cursor != null;
+        }
+
+        @Override
+        public E next() {
+            E e = cursor.getContent();
+            cursor = cursor.getNext();
+            return e;
+        }
+    };
+    return it;
+}   
+```
+
+En nuestro Main tendríamos ahora:
+
+```Java
+    List<Integer> listaDinamica = new LinkedList<>();
+    listaDinamica.addLast(1);
+    listaDinamica.addLast(0);
+    listaDinamica.addLast(1);
+
+    Iterator<Integer> miIterador = listaDinamica.iterator();
+
+    while (miIterador.hasNext()) {
+        Integer n = miIterador.next();
+        System.out.println(n);
+    }
+```
+
+## La interfaz Comparator<E>
+
+### El problema de los operadores relacionales
+
+Si en Java tienes 2 enteros `int a = 5` y `int b = 10`, saber cuál es el mayor
+o si son iguales es trivial, basta con `a > b` o `a == b`.
+
+Pero, ¿qué pasa cuando tienes objetos complejos como `Estudiante`, `Producto` o `Customer`?
+Si tienes dos clientes (customers) c1 y c2, Java no tiene idea de cómo compararlos.
+
+- ¿Los compara por su nombre?
+
+- ¿Por su edad?
+
+- ¿Por su promedio?
+
+- ¿Por la ciudad donde viven?
+
+Para darle a Java instrucciones exactas de cómo medir u ordendar objetos personalizados
+existe la interfaz `Comparator<E>`.
+
+### Ejercicio 
+
+Antes de seguir explicando la interfaz Comparator, revise el siguiente ejercicio. Recuerde
+que en la clase List habíamos dejado un método con la firma:
+
+```Java
+public List<E> findIntersection(List<E> another);
+```
+
+Dicho método recibe una lista y retorna los elementos communes a la lista recibida y
+a la que invoca el método.
+
+Entonces, en la clase LinkedList:
+
+```Java
+public List<E> findIntersection(List<E> another){
+    List<E> resultado = new LinkedList<>();
+
+    for (E e: this){ // Internamente se ejecuta nuestro .iterator(), obteniendo .getContent()
+        for (E otherListElement : another){
+            if (e == otherListElement) resultado.addLast(e);
+        }
+    }
+
+    return resultado;
+}
+```
+
+Si hacemos instancias de prueba:
+
+```Java
+List<Integer> l1= new LinkedList<>();
+l1.addFirst(1);
+l1.addFirst(2);
+l1.addFirst(3);
+l1.addFirst(0);
+        
+List<Integer> l2= new LinkedList<>();
+list.addLast(1);
+list.addLast(2);
+list.addLast(3);
+list.addLast(4);
+
+List<Integer> resultado = l1.findIntersection(l2);
+// Salida
+// 1
+// 2
+// 3
+```
+
+Sin embargo, ¿qué sucediera si quisieramos comparar objetos?. Note lo siguiente:
+
+```Java
+List<Person> list3 = new LinkedList<>();
+list3.addLast(new Person("Raquel", "Jaramillo", 24));
+list3.addLast(new Person("Raquel", "Jaramillo", 28));
+list3.addLast(new Person("Raquel", "Jaramillo", 47));
+list3.addLast(new Person("Rafael", "Pesantez", 23));
+list3.addLast(new Person("Felix", "Prado", 38));
+
+List<Person> list4 = new LinkedList<>();
+list4.addLast(new Person("Raquel", "Jaramillo", 24));
+list4.addLast(new Person("Felix", "Prado", 38));
+list4.addLast(new Person("Emilio", "Doumet", 17));
+list4.addLast(new Person("Alex", "Vaca", 84));
+list4.addLast(new Person("Daniel", "Pesantez", 23));
+        
+        
+List<Person> intersection2 = list3.findIntersection(list4);
+for (Person p : intersection2) {
+    System.out.println(p);
+}
+        
+List<Person> intersection3 = list3.findIntersection(list4);
+for (Person p : intersection3) {
+    System.out.println(p);
+}
+// Salida
+// ...
+```
+
+El operador relacional `==` no es suficiente para comparar objetos (Aunque se podría usar .equals()).
+Más adelante veremos cómo hacer el mismo método **con un Comparador**.
+
+### Continuando con la Interfaz Comparator<E>
+
+Al implementar (implements) la interfaz `Comparator<E>`, se exige reescribir el único
+método principal con firma:
+
+```Java
+int compare(T object1, T object2)
+```
+
+Como se puede evidenciar, Este método siempre retorna un número entero (int) y sigue 
+una convención universal de tres estados:
+
+![metodoCompare](./../sesion7/comparatorMethodCompare.png)
+
+> TIP: Si solo te interesa saber si son iguales (para un método de búsqueda como findAll o contains), que retorne 0 cuando coincidan y cualquier otro número (como 1 o -1) cuando sean distintos.
+
+No es necesario que sea sólo 0, 1, o -1. Podría darse el caso que esté comparando edades, en ese caso
+si la edad 1 es mayor que la edad 2 (10 > 5), podría retornar `return 10 - 5` que ya retorna un número
+positivo.
+
+#### Para qué nos sive en los TDAs
+
+Suponga que en LinkedList<E> se quiere crear un método genérico para buscar elementos que 
+cumplan cierto criterio:
+
+```Java
+LinkedList<E> findAll(Comparator<E> cmp, E object)
+``` 
+
+La lista no necesita saber si está guardando autos, personas o perros. La lista 
+simplemente recorre sus nodos y en cada paso le pregunta al comparador:
+
+```Java
+if (cmp.compare(nodoActual.getContent(), object) == 0) {
+    // ¡Coinciden en el criterio! Lo agregamos a la lista de resultados[cite: 50, 52]
+}
+```
+
+### Formas de Implementar un Comparator
+
+#### Creando una Instancia de la clase Comparator
+
+Crear la instancia del comparador, guardarla en una variable y luego pasarla a un método:
+
+```Java
+Comparator<Customer> cmpByCity = new Comparator<Customer>() {
+    @Override
+    public int compare(Customer o1, Customer o2) {
+        if (o1.getCity().equals(o2.getCity())) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+};
+
+Customer customerGye = new Customer();
+customerGye.setCity("Guayaquil");
+
+// Llamar al método que pida Comparator
+LinkedList<Customer> results = allCustomers.findAll(cmpByCity, customerGye);
+```
+
+#### Clase Anónima Directa
+
+En lugar de guardar el comparador en una variable previa, se instancia e implementa
+directamente dentro del argumento del método:
+
+```Java
+Customer customerGye = new Customer();
+customerGye.setCity("Guayaquil");
+
+LinkedList<Customer> results = allCustomers.findAll(new Comparator<Customer>() {
+    @Override
+    public int compare(Customer o1, Customer o2) {
+        if (o1.getCity().equals(o2.getCity())) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+}, customerGye);
+```
+
+#### Mediante una expresión lambda (La más limpia y moderna)
+
+Como Comparator es una Interfaz Funcional (solo tiene un método abstracto obligatorio), 
+Java permite resumir toda la sintaxis fea anterior en una sola Lambda 
+((param1, param2) -> { cuerpo }):
+
+```Java
+Customer customerGye = new Customer();
+customerGye.setCity("Guayaquil");
+
+LinkedList<Customer> results = allCustomers.findAll((Customer o1, Customer o2) -> {
+    if (o1.getCity().equals(o2.getCity())) {
+        return 0;
+    } else {
+        return 1;
+    }
+}, customerGye);
+```
+
+Regresemos al método con firma:
+
+```Java
+public List<E> findIntersection(List<E> another);
+```
+
+Si ahora usamos un comparador, estaríamos alterando su firma:
+
+```Java
+public List<E> findIntersection(List<E> another, Comparator<E> cmp);
+```
+
+Tendríamos entonces:
+
+```Java
+@Override
+public List<E> findIntersection(List<E> another, Comparator<E> cmp) {
+    LinkedList<E> result = new LinkedList<>();
+
+    for (E e1 : this) {
+        for (E e2 : another) {
+            if (cmp.compare(e1, e2) == 0) {
+                result.addLast(e1);
+            }
+        }
+    }
+    return result;
+}
+```
+
+Note que aquí sólo definimos lo que queremos que compare `Comparator<E>` más no
+cómo lo hará. Tenemos 3 formas para hacerlo:
+
+```Java
+// Instancia de la Interfaz Comparator con variable cmp1
+// Si queremos comparar por edades
+Comparator<Person> cmp1 = new Comparator<Person>(){
+    @Override
+    public int compare(Person p1, Person p2) {
+        
+        if (p1.getAge() == p2.getAge()){
+            return 0;
+        } else if (p1.getAge() > p2.getAge()){
+            return 1;
+        } else {
+            return -1;
+        }
+        // return p1.getAge() - p2.getAge(); // <--- Lo que habíamos mencionado
+    }
+};
+
+// Instancia de la Interfaz Comparator con variable cmp2
+// Si queremos comparar por edades
+Comparator<Person> cmp2 = new Comparator<Person>(){
+    @Override
+    public int compare(Person p1, Person p2) {
+        return p1.getName().compareTo(p2.getName());
+    }
+};
+
+List<Person> intersection2 = list3.findIntersection(list4, cmp1);
+System.out.println("*** INTERSECCION 2 ****");
+for (Person p : intersection2) {
+    System.out.println(p);
+}
+        
+List<Person> intersection3 = list3.findIntersection(list4, cmp2);
+System.out.println("*** INTERSECCION 3 ****");
+for (Person p : intersection3) {
+    System.out.println(p);
+}
+
+// Equivalentemente
+// Forma simple de Comparar usando expresionales lambdas
+List<Person> intersection4 = list3.findIntersection(list4, (p1, p2)->{
+    return p1.getAge() - p2.getAge();
+}); 
+System.out.println("*** INTERSECCION 4 ****");
+for (Person p : intersection4) {
+    System.out.println(p);
+}
+
+```
+
+- .comparteTo(): clases nativas de Java como `String`, `Integer`, `Double` ya vienen
+implementados con la interfaz Compare<E>. Compare no sólo tiene el método compare(), además
+tiene el método compareTo() el cual representa el orden natural interno de un objeto (Comparar
+el mismo objeto con otro). Puede retornar o negativo o cero o positivo (Lo que ya hemos visto).
 
 
 

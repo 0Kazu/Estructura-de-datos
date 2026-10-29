@@ -22,7 +22,7 @@ public interface List<E> extends Iterable<E>{
     
     public void clear();
             
-    public void add(int index, E element); //Inserta el elemento en la posicion index
+    public boolean add(int index, E element); //Inserta el elemento en la posicion index
             
     public E remove(int index); // remueve y retorna el elemento en la posicion index
     
@@ -30,8 +30,8 @@ public interface List<E> extends Iterable<E>{
     
     public E set(int index, E element); //setea elemento en la posicion index
 
-    public List<E> findIntersection(List<E> another);
+    // public List<E> findIntersection(List<E> another);
     
-    // public List<E> findIntersection(List<E> another, Comparator<E> cmp);
+    public List<E> findIntersection(List<E> another, Comparator<E> cmp);
     
 }

@@ -29,5 +29,4 @@ class NodeList<E> {
     public void setNext(NodeList<E> next) {
         this.next = next;
     }
-    
 }

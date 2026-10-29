@@ -1,5 +1,6 @@
 package linkedlist;
-
+import java.lang.classfile.constantpool.IntegerEntry;
+//import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -9,29 +10,8 @@ import java.util.Iterator;
  */
 
 public class Main {
-    
     public static void main (String[] args)
-    {   
-        // Caso 1 
-        List<Integer> list1 = new LinkedList<>();
-        list1.addLast(1);
-        list1.addLast(2);
-        list1.addLast(3);
-        list1.addLast(4);
-        
-        List<Integer> list2 = new LinkedList<>();
-        list2.addLast(5);
-        list2.addLast(9);
-        list2.addLast(8);
-        list2.addLast(2);
-        
-        List<Integer> intersection1 = list1.findIntersection(list2);
-        
-        for(Integer n : intersection1){
-            System.out.println(n);
-        }
-                
-        // Caso 2
+    {
         List<Person> list3 = new LinkedList<>();
         list3.addLast(new Person("Raquel", "Jaramillo", 24));
         list3.addLast(new Person("Raquel", "Jaramillo", 28));
@@ -46,7 +26,7 @@ public class Main {
         list4.addLast(new Person("Alex", "Vaca", 84));
         list4.addLast(new Person("Daniel", "Pesantez", 23));
         
-        
+        /*
         List<Person> intersection2 = list3.findIntersection(list4);
         for (Person p : intersection2) {
             System.out.println(p);
@@ -56,8 +36,7 @@ public class Main {
         for (Person p : intersection3) {
             System.out.println(p);
         }
-        
-        /*
+        */
         // Instancia de la Interfaz Comparator con variable cmp1
         Comparator<Person> cmp1 = new Comparator<Person>(){
             @Override
@@ -95,6 +74,7 @@ public class Main {
             System.out.println(p);
         }
         
+        /*
         // Forma simple de Comparar usando expresionales lambdas
         List<Person> intersection4 = list3.findIntersection(list4, (p1, p2)->{
             return p1.getAge() - p2.getAge();
@@ -106,7 +86,7 @@ public class Main {
         */
     }
 
-    
+     
 }
 
 /* Istancia de Iteradores        

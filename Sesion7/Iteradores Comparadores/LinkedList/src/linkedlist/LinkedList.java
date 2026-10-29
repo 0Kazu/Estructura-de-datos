@@ -90,12 +90,12 @@ public class LinkedList<E> implements List<E>{
     
     @Override
     public E removeFirst() {
-        //size--;
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public E removeLast() {
-        //size--;
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
@@ -129,7 +129,7 @@ public class LinkedList<E> implements List<E>{
     }
 
     @Override
-    public void add(int index, E element) {
+    public boolean add(int index, E element) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
@@ -148,6 +148,7 @@ public class LinkedList<E> implements List<E>{
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
+    @Override 
     public String toString() {
         String s="";
         for (NodeList<E> n=header; n!=null; n=n.getNext()) {
@@ -156,9 +157,10 @@ public class LinkedList<E> implements List<E>{
         return s;
     }
     
+    @Override
     public Iterator<E> iterator(){
-        Iterator<E> it=new Iterator<E>() {
-                NodeList<E> cursor = header;
+        Iterator<E> it = new Iterator<E>() {
+            NodeList<E> cursor = header;
                 
             @Override
             public boolean hasNext() {
@@ -175,6 +177,7 @@ public class LinkedList<E> implements List<E>{
         return it;
     }   
     
+    /*
     // Retornar una lista nueva que tenga los elementos que son comunes a la lista que invoca este método y 
     // a la otra lista
     @Override
@@ -189,10 +192,9 @@ public class LinkedList<E> implements List<E>{
         }
         return result;
     }
-    
+     */
     
     // Usando objeto Comparator<E>
-    /*
     @Override
     public List<E> findIntersection(List<E> another, Comparator<E> cmp) {
         LinkedList<E> result = new LinkedList<>();
@@ -205,5 +207,19 @@ public class LinkedList<E> implements List<E>{
         }
         return result;
     }
-*/
+    
+    
+    /*
+    public List<E> findIntersection(List<E> another) {
+        List<E> resultado = new LinkedList<>();
+
+        for (E e: this){
+            for (E otherListElement : another){
+                if (e.equals(otherListElement)) resultado.addLast(e);
+            }
+        }
+
+        return resultado;
+    }
+    */
 }
