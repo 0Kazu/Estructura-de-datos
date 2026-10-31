@@ -25,7 +25,7 @@ public class CircularLinkedList<E> implements List<E> {
         return last;
     }
     
-     public CircularNodeList<E> getHeader(){
+    public CircularNodeList<E> getHeader(){
         return last.getNext();
     }
     
@@ -82,7 +82,7 @@ public class CircularLinkedList<E> implements List<E> {
     public E get(int index) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-
+    
     @Override
     public E set(int index, E element) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody

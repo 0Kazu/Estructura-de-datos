@@ -2036,7 +2036,8 @@ da una forma universal y segura de decir: "Dame el siguiente elemento hasta que 
 sin datos".
 
 Los iteradores permiten el uso de una versión mejorada de lazo for. A este tipo de lazo
-se lo conoce como for-each.
+se lo conoce como for-each. Es decir que cada foreach es en realidad el método .iterator() de
+esa clase ejecutándose (más adelante).
 
 ```Java
 for (Item item: customDataStructure) {
@@ -2315,7 +2316,7 @@ el método .iterator():
 @Override
 public Iterator<E> iterator(){
     Iterator<E> it = new Iterator<E>() {
-            NodeList<E> cursor = header;
+        NodeList<E> cursor = header;
                 
         @Override
         public boolean hasNext() {
@@ -2645,6 +2646,7 @@ for (Person p : intersection4) {
 implementados con la interfaz Compare<E>. Compare no sólo tiene el método compare(), además
 tiene el método compareTo() el cual representa el orden natural interno de un objeto (Comparar
 el mismo objeto con otro). Puede retornar o negativo o cero o positivo (Lo que ya hemos visto).
+
 
 
 

@@ -2202,6 +2202,162 @@ public Iterator<E> iterator() {
 }
 ```
 
+## TDA Pila
+
+Una Pila (**Stack**) es una estructura de datos lineal donde la inserción y eliminación
+de elementos se realiza por **un solo extremo**; la parte más alta es llamada **tope o cima**
+mientras que la parte más baja es llamada **base**. Es decir, sigue 
+estrictamente el principio **LIFO** (Last In, First Out) -> el último en entrar es el
+primero en salir. 
+
+> Por ejemplo: Cuando te apilan cartas en el escritorio, colocas las nuevas encima. Al revisarlas, tomas la carta que quedó arriba de todas (la última que llegó). Al sacarla, el tope de la pila cambia a la carta siguiente.
+
+![principioLIFO](./sesion6/principioLIFO.png)
+
+- Al acumular cartas, cada carta (**elemento**) era "metida" a la pila: **pila.push(elemento)**
+-> la operación push aumenta un elemento a la pila, y esta **aumenta en su tamaño**.
+
+- Al revisar cada carta, se la "sacaba" de la pila: **elemento = pila.pop()** -> la
+operación pop **remueve el tope** de la pila y lo retorna, y esta disminuye su tamaño.
+
+![pilaIMG](./Sesion6/pilaImg.png)
+
+- De donde S es el nombre de la pila.
+
+### Operaciones de un Stack
+
+| Operación | Método | Efecto | Comportamiento / Error |
+| :--- | :--- | :--- | :--- |
+| **Insertar** | `push(e)` | Pone el elemento `e` en la **cima/tope**. El tamaño aumenta. | Si la pila estática está llena, produce **Desbordamiento** (*Overflow*). |
+| **Remover** | `pop()` | Remueve y retorna el elemento de la **cima/tope**. El tamaño disminuye. | Si la pila está vacía, produce **Subdesbordamiento** (*Underflow* / Error). |
+| **Consultar** | `peek()` | Retorna el elemento de la **cima/tope** **SIN removerlo**. | Produce error si la pila está vacía. |
+| **Estado** | `empty()` / `isEmpty()` | Devuelve `true` si la pila no tiene elementos. | - |
+| **Tamaño** | `size()` | Devuelve la cantidad de elementos en la pila. | - |
+
+Las formas de implementar el TDA pila en Java se reducen a 2 formas.
+
+### Implementación estática con la clase Stack de Java
+
+Java incluye la clase `Stack<E>`. Funciona, pero en el Java moderno está en desuso a favor de la interfaz
+`Deque`.
+
+![claseStack](./sesion6/claseStack.png)
+
+```Java
+import java.util.Stack;
+
+// Code...
+
+Stack<String> s = new Stack<>();
+s.push("Carta 1"); // [Carta 1]
+s.push("Carta 2"); // [Carta 1, Carta 2]
+System.out.println(s.pop()); // Retorna "Carta 2"
+```
+
+Sin embargo, `stack` implementa pila.get(posicion). Dicho método implementa
+mal el método ya que una pila puede ser consultada a través de sólo sus extremos.
+
+```Java
+public static void main(String[] args) {
+    Stack<Integer> s1 = new Stack<>();
+    // s1.get(2); Es una mala implementación por parte de Java, no se puede acceder por posición
+    // En un Stack.
+    
+    // Añadimos elementos a la Pila
+    for (Integer i = 1; i <= 5; i++) {
+        s1.push(i);
+    }
+
+    // Otra observación
+    // ERROR, Java nos mostrará desde la cima a la base cuando debe ser desdela base hacia la cima
+    System.out.println("RECORRER STACK");
+    for (Integer e : s1) {
+        System.out.println(e);
+    }
+
+    // Verificar si la pila no esta vacia -> Sólo con pop veremos su correcto orden
+    System.out.println("ELIMINAR ELEMENTOS STACK");
+    while (!s1.isEmpty()) { // Para que no exista subdesbordamiento de la pila
+        Integer e = s1.pop();
+        System.out.println(e);
+    }
+}
+```
+
+### Implementación con la interfaz Deque
+
+En java actual, la interfaz `Deque<E>` se utiliza para implementar Pilas.
+Existen dos clases principales que la implementan:
+
+1. ArrayDeque<E>: Es una implementación basada en arreglos. Es la versión estática y
+redimensionable.
+
+2. LinkedList<E>: Es una implementación basada en listas enlazadas. Es la versión
+dinámica.
+
+Por ejemplo:
+
+```Java
+public static void main(String[] args) {
+    Deque<Integer> s2 = new ArrayDeque<>(); // Recomendación de implementación en 1er lugar
+    // s2.getFirst(); sólo es posible usar los extremos; conceptualmente bien.
+    // s2.getLast();
+    // getFirst and getLast son teóricamente correctos
+
+    Deque<Integer> s3 = new LinkedList<>(); // Recomendación de implementaciónen 2do lugar
+
+    // s2.pop();
+    // s2.get(5); -> Error de compilación
+
+    for (Integer i = 1; i <= 5; i++) {
+        s2.push(i);
+        s3.push(i);
+    }
+
+    // Verificar si la pila no esta vacia
+    // Sí muestra el orden correcto del Stack
+    System.out.println("ARRAYDEQUE");
+    while (!s2.isEmpty()) {
+        Integer e = s2.pop();
+        System.out.println(e);
+    }
+
+    System.out.println("LINKEDLIST");
+    while (!s3.isEmpty()) {
+        Integer e = s3.pop();
+        System.out.println(e);
+    }
+
+    // El foreach sí muestra el orden correcto (Base hacia Tope)
+    System.out.println("ARRAYDEQUE");
+    for (Integer e1 : s2){
+        System.out.println(e1);
+    }
+
+        // Paso 11
+    System.out.println("LINKEDLIST");
+    for (Integer e3 : s3){
+        System.out.println(e3);
+    }
+}
+```
+
+## TDA Cola
+
+Una cola (**Queue**) es una estructura de datos lineal que sigue estractamente la regla
+**FIFO (First-in, First-Out)**, es decir, el primero en llegar es el primero en salir. Tenemos
+este mismo comportamiento en distintas actividades del día a día. Imagina la fila del supermercado
+o de la caja del banco: te pones al final de la fila y la cajera siempre atiende al que está
+al frente.
+
+### Cómo funciona
+
+Se puede decir que la cola tiene 2 extremos:
+
+- Frente: Por aquí salen(o se leen) los elementos.
+
+- Final: Por aquí entran los elementos nuevos.
+
 
 
 
