@@ -19,7 +19,7 @@ public class Colas {
     public static void main(String[] args) {
         
         // Crear e instanciar una Cola usando LinkedList
-        Queue<String> dynamicQueue = new LinkedList<>();        
+        // Queue<String> dynamicQueue = new LinkedList<>(); 
         
         // Queue<String> staticQueue = new ArrayDeque<>();
         
@@ -41,6 +41,7 @@ public class Colas {
         */
 
         // Ejemplo 
+        /*
         dynamicQueue.offer("Chaewon");
         dynamicQueue.offer("Cha ewon");
         dynamicQueue.offer("Kazuha");
@@ -49,6 +50,7 @@ public class Colas {
         dynamicQueue.offer("Candy");
         dynamicQueue.offer("Lifehouse");
         dynamicQueue.offer("Stromae");
+         
         
         // Remover elementos
         System.out.println("");
@@ -57,8 +59,8 @@ public class Colas {
         while (!dynamicQueue.isEmpty()) {
             System.out.println(dynamicQueue.poll());
         }
-        
-        
+        */
+        /*
         // Crear e instanciar colas de prioridad en el Constructor
         Queue<String> pq1=new PriorityQueue();
         
@@ -76,7 +78,9 @@ public class Colas {
         while (!pq1.isEmpty()) {
             System.out.println(pq1.poll());
         }
+        */
        
+        /*
         // Crear e instancia colas de prioridad
         Queue<Integer> pq2 = new PriorityQueue();
        
@@ -96,9 +100,8 @@ public class Colas {
         while (!pq2.isEmpty()) {
             System.out.println(pq2.poll());
         }
-        
-
-        
+        */
+        /*
         Queue<Book> pq3 = new PriorityQueue();
         
         pq3.offer(new Book("Algorithms", 2014, "978-1-118-77133-4"));
@@ -112,8 +115,8 @@ public class Colas {
         while (!pq3.isEmpty()) {
             System.out.println(pq3.poll());
         }
+         */
         
-
         Comparator<Book> cmp = new Comparator<Book>(){
             @Override
             public int compare(Book b1, Book b2) {
@@ -122,18 +125,20 @@ public class Colas {
         
         };
       
-        // Queue<Book> pq4=new PriorityQueue(cmp);
+        Queue<Book> pq4=new PriorityQueue(cmp);
 
-        /* 
+        /*
         Queue<Book> pq4 = new PriorityQueue<Book>((b1, b2) -> {
             return b1.getYear() - b2.getYear();
         });
-        */
+         */
 
         // Comparador que muestre de manera descendente los títulos de los libros (Actividad)
+        /*
         Queue<Book> pq4 = new PriorityQueue<>((b1, b2) -> {
             return b2.getTitle().compareTo(b1.getTitle());
         });
+        */
         
         pq4.offer(new Book("Algorithms", 2014, "978-1-118-77133-4"));
         pq4.offer(new Book("Estructuras de Datos", 2022, "130369977"));
@@ -148,10 +153,6 @@ public class Colas {
         while (!pq4.isEmpty()) {
             System.out.println(pq4.poll());
         }
-        
-        
-        
-
         
         /*
         // Actividad 1: Presentar los elementos de pq5 ordenados por el 
@@ -199,106 +200,6 @@ public class Colas {
         books.add(new Book("The Great Gatsy",1920,"004004"));
         books.add(new Book("Moby Dick",1851,"005005"));
         */
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        // Actividad 1: Presentar los elementos de pq1 ordenados por el tamaño de forma descendente 
-        // usando una expresión Lambda.
-        
-        Queue<String> pq5=new PriorityQueue<>((s1, s2) -> {
-            return s2.length() - s1.length();
-        });
-        
-        pq5.offer("Primera unidad");
-        pq5.offer("Segundo capítulo");
-        pq5.offer("Tercera");
-        pq5.offer("Cuarta");
-        pq5.offer("Quint");
-        pq5.offer("Sext");
-        
-        System.out.println("");
-        System.out.println("**********************");
-        System.out.println("Priority Queue5 String");
-        while (!pq5.isEmpty()) {
-            System.out.println(pq5.poll());
-        }
-        
-        
-        
-        // Actividad 2: Presentar los elementos de números enteros de pq6 ordenados primero los números pares
-        // y luego los números impares usando una expresión Lambda.
-        
-        Queue<Integer> pq6=new PriorityQueue<>((i1, i2) -> {
-            return i1 % 2 == 0 ? -1 : 1;
-        });
-       
-        pq6.offer(5);
-        pq6.offer(745);
-        pq6.offer(15);
-        pq6.offer(7);
-        pq6.offer(8);
-        pq6.offer(6);
-        pq6.offer(75);
-        pq6.offer(73);
-        pq6.offer(74);
-        pq6.offer(20);
-        
-        System.out.println("");
-        System.out.println("***********************");
-        System.out.println("Priority Queue6 Integer");
-        while (!pq6.isEmpty()) {
-            System.out.println(pq6.poll());
-        }
-        
-        
-        // Actividad 3: Presentar los libros ordenados por año, en el caso de libros repetidos por año que
-        // ordenen alfabéticamente usando una expresión Lambda.
-        
-        LinkedList<Book> books= new LinkedList<>();
-        books.add(new Book("In Search of Lost Time",1913,"001001"));
-        books.add(new Book("Don Quijote",1605,"002002"));
-        books.add(new Book("Ulysses",1904,"003003"));
-        books.add(new Book("The Great Gatsy",1920,"004004"));
-        books.add(new Book("Moby Dick",1851,"005005"));
-        books.add(new Book("Aaaaa",1599,"006006"));
-        books.add(new Book("CCCC",1599,"006006"));
-        books.add(new Book("First Folio",1623,"007007"));
-        books.add(new Book("King Lear2",1603,"008008"));
-        books.add(new Book("BBB",1599,"006006"));
-        books.add(new Book("YYY",1599,"006006"));
-        books.add(new Book("Second Folio",1623,"007007"));
-        books.add(new Book("King Lear1",1603,"008008"));
-        books.add(new Book("The Great Gatsy",1920,"004004"));
-        books.add(new Book("Moby Dick",1851,"005005"));
-        
-        PriorityQueue<Book> pqLibros = new PriorityQueue<>((b1, b2) -> {
-            int subtraction = b1.getYear() - b2.getYear();
-            
-            if (subtraction == 0){
-                return b1.getTitle().compareTo(b2.getTitle());
-            }
-            return subtraction;
-        });
-        
-        for(Book b : books){
-            pqLibros.offer(b);
-        }
-        
-        while (!pqLibros.isEmpty()){
-            System.out.println(pqLibros.poll());
-        }
-        
-        System.exit(85);
-        
     }
 
 }

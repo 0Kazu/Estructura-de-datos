@@ -2342,7 +2342,7 @@ public static void main(String[] args) {
 }
 ```
 
-## TDA Cola
+## TDA Cola (Queue)
 
 Una cola (**Queue**) es una estructura de datos lineal que sigue estractamente la regla
 **FIFO (First-in, First-Out)**, es decir, el primero en llegar es el primero en salir. Tenemos
@@ -2357,6 +2357,296 @@ Se puede decir que la cola tiene 2 extremos:
 - Frente: Por aquí salen(o se leen) los elementos.
 
 - Final: Por aquí entran los elementos nuevos.
+
+Sus dos operaciones fundamentales son:
+
+- EnColar (Enqueue): Inserta un elemento al final de la cola. El tamaño aumenta.
+
+- DesEnColar (Dequeue): Remueve y retorna el elemento que está en el frente.
+
+Si quisiera eliminar elementos en una cola que esté vacía, se retornará un error conocido 
+como **subdesbordamiento de la cola** (Underflow).
+
+En java, `Queue` es una interfaz (`java.util.Queue`). Para cada operación tiene dos versiones
+una que lanza una excepción (hace colapsar el programa si falla) y otra que retorna un valor 
+especial (false o null).
+
+Las clases que pueden implementar o ser una cola:
+
+![imgColaPueden](./sesion6/colaImplement.png)
+
+```Java
+// Crear e instanciar una Cola usando LinkedList
+Queue<String> dynamicQueue = new LinkedList<>();        
+        
+Queue<String> staticQueue = new ArrayDeque<>();
+```
+
+
+### Métodos de la interfaz 
+
+Los métodos para añadir y remover elementos son los siguientes:
+
+![metodosCola](./sesion6/metodosCola.png)
+
+| Operación | Lanza Excepción | Retorna Valor Especial | ¿Qué hace? |
+| :--- | :--- | :--- | :--- |
+| **Insertar (Encolar)** | `add(e)` | `offer(e)` | Agrega un elemento al final. `offer` retorna `false` si falla. |
+| **Remover (Desencolar)** | `remove()` | `poll()` | Elimina y retorna el elemento del frente. `poll` retorna `null` si está vacía. |
+| **Examinar (Ver frente)** | `element()` | `peek()` | Retorna el elemento del frente SIN eliminarlo. `peek` retorna `null` si está vacía. |
+
+#### Ejemplos de uso
+
+```Java
+import java.util.Queue;
+import java.util.LinkedList;
+
+// Crear la cola de Strings
+Queue<String> colaAtencion = new LinkedList<>();
+
+// 1. Encolar elementos (van al final)
+colaAtencion.offer("Cliente 1");
+colaAtencion.offer("Cliente 2");
+colaAtencion.offer("Cliente 3");
+
+// 2. Ver quién está al frente sin sacarlo
+System.out.println("Siguiente a ser atendido: " + colaAtencion.peek()); // Cliente 1
+
+// 3. Desencolar (atiende y saca al del frente)
+String atendido = colaAtencion.poll(); 
+System.out.println("Atendido: " + atendido); // Cliente 1
+
+// Quedan: ["Cliente 2", "Cliente 3"]
+```
+
+## Colas de prioridad
+
+En una cola normal el orden (de quién es el primero en ser atendido) lo da la llegada. En 
+una cola de prioridad, a cada elemento se le asigna una prioridad y el orden de salida depende
+de esa prioridad.
+
+#### Tipos de cola de prioridad
+
+Hay dos tipos de colas de prioridad:
+
+- De prioridad ascendente:
+    * EnColar: son encolados arbitrariamente(PQEnColar).
+    * DesEnColar: se remueve el elemento más pequeño de la cola(PQMinDesEncolar).
+    * Por defecto en una cola de prioridad.
+
+- De prioridad descendente:
+    * EnColar: son encolados arbitrariamente.
+    * DesEnColar: se remueve el elemento mas grande de la cola(PQMaxDesEncolar).
+
+Todo objeto que entre y salga de una cola debe implementar la clase 
+Comparable -> Para saber cómo ordenarlos.
+Un ejemplo con enteros (Por defecto tiene Min-Priority Queue):
+
+```Java
+import java.util.Queue;
+import java.util.PriorityQueue;
+
+Queue<Integer> pq = new PriorityQueue<>();
+
+pq.offer(50);
+pq.offer(10);
+pq.offer(30);
+
+// Aunque insertamos 50 primero, el poll() sacará el menor (10)
+System.out.println(pq.poll()); // Imprime: 10
+System.out.println(pq.poll()); // Imprime: 30
+System.out.println(pq.poll()); // Imprime: 50
+```
+
+Un ejemplo con Strings (Orden alfabético  -> de la A la Z):
+
+```Java
+Queue<String> pq1=new PriorityQueue();
+        
+pq1.offer("Primer capítulo");
+pq1.offer("Segundo capítulo");
+pq1.offer("Tercer capítulo");
+pq1.offer("Cuarto capítulo");
+pq1.offer("Quinto capítulo");
+pq1.offer("Sexto capítulo");
+        
+// Remover elementos
+System.out.println("");
+System.out.println("**********************");
+System.out.println("Priority Queue1 String");
+while (!pq1.isEmpty()) {
+    System.out.println(pq1.poll());
+}
+```
+
+Como se dijo, todo objeto guardado debe implementar la interfaz Comparable.
+Considere el siguiente ejemplo:
+
+```Java
+Queue<Book> pq3 = new PriorityQueue();
+        
+pq3.offer(new Book("Algorithms", 2014, "978-1-118-77133-4"));
+pq3.offer(new Book("Estructuras de Datos", 2022, "130369977"));
+pq3.offer(new Book("Data Structures and Algorithms in Java", 2002,"978-0672324536"));
+        
+// Remover elementos
+System.out.println("");
+System.out.println("*****************************************");
+System.out.println("Libros por título usando el orden natural");
+while (!pq3.isEmpty()) {
+    System.out.println(pq3.poll());
+}
+```
+
+Siendo Book.java:
+
+```Java
+package colas;
+import java.util.Objects;
+
+public class Book implements Comparable <Book>  {
+    private String title;
+    public int year;
+    String ISBN;
+    
+    public Book (String title, int year, String ISBN) {
+        this.title = title;
+        this.year = year;
+        this.ISBN = ISBN;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String getISBN() {
+        return ISBN;
+    }
+
+    public void setISBN(String ISBN) {
+        this.ISBN = ISBN;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Book other = (Book) obj;
+        if (this.year != other.year) {
+            return false;
+        }
+        if (!Objects.equals(this.title, other.title)) {
+            return false;
+        }
+        return Objects.equals(this.ISBN, other.ISBN);
+    }
+
+    @Override
+    public String toString() {
+        return "Book[" + "title=" + title + ", year=" + year + ", ISBN=" + ISBN + "]";    
+    }
+
+    /*
+    @Override
+    public int compareTo(Book b) {
+        return b.getYear()- this.getYear();
+    }
+    */
+   
+    @Override
+    public int compareTo(Book b) {
+        return this.getTitle().compareTo(b.getTitle());
+        // return b.getTitle().compareTo(this.getTitle());
+    }
+
+}
+```
+
+El output sería:
+
+```Java
+*****************************************
+Libros por título usando el orden natural
+Book[title=Algorithms, year=2014, ISBN=978-1-118-77133-4]
+Book[title=Data Structures and Algorithms in Java, year=2002, ISBN=978-0672324536]
+Book[title=Estructuras de Datos, year=2022, ISBN=130369977]
+```
+
+Como puede ver en el último `@Override`, es necesario contar con el método
+compareTo sobreescrito para la cola de prioridad.
+
+Si no quisiera usar el comparador sobreescrito en la clase que implemente
+comparator, entonces:
+
+```Java
+Comparator<Book> cmp = new Comparator<Book>(){
+    @Override
+    public int compare(Book b1, Book b2) {
+        return b2.getYear() - b1.getYear();
+    }
+    // b2     b1
+    // 2022 - 2014 -> 2022 - 2014 = 8 
+    // compare(b1, b2) -> si return es un positivo, eso implica 
+    // que el de la izquierda (b1) es el mayor. Por tanto
+    // sale el menor que sería b2.
+    
+    // Esto es, orden descendente
+};
+      
+Queue<Book> pq4=new PriorityQueue(cmp);
+
+pq4.offer(new Book("Algorithms", 2014, "978-1-118-77133-4"));
+pq4.offer(new Book("Estructuras de Datos", 2022, "130369977"));
+pq4.offer(new Book("Data Structures and Algorithms in Java", 2002, "978-0672324536"));
+        
+// Remover elementos
+        
+System.out.println("");
+System.out.println("**************");
+System.out.println("Libros por año usando Comparator");
+        
+while (!pq4.isEmpty()) {
+    System.out.println(pq4.poll());
+}
+```
+
+Output:
+
+```Java
+**************
+Libros por año usando Comparator
+Book[title=Estructuras de Datos, year=2022, ISBN=130369977]
+Book[title=Algorithms, year=2014, ISBN=978-1-118-77133-4]
+Book[title=Data Structures and Algorithms in Java, year=2002, ISBN=978-0672324536]
+```
+
+
+
 
 
 
