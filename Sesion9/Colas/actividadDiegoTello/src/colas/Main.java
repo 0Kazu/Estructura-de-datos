@@ -1,4 +1,4 @@
-package stack;
+package colas;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

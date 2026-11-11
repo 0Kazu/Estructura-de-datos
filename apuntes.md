@@ -2202,6 +2202,305 @@ public Iterator<E> iterator() {
 }
 ```
 
+## La interfaz Comparator<E>
+
+### El problema de los operadores relacionales
+
+Si en Java tienes 2 enteros `int a = 5` y `int b = 10`, saber cuál es el mayor
+o si son iguales es trivial, basta con `a > b` o `a == b`.
+
+Pero, ¿qué pasa cuando tienes objetos complejos como `Estudiante`, `Producto` o `Customer`?
+Si tienes dos clientes (customers) c1 y c2, Java no tiene idea de cómo compararlos.
+
+- ¿Los compara por su nombre?
+
+- ¿Por su edad?
+
+- ¿Por su promedio?
+
+- ¿Por la ciudad donde viven?
+
+Para darle a Java instrucciones exactas de cómo medir u ordendar objetos personalizados
+existe la interfaz `Comparator<E>`.
+
+### Ejercicio 
+
+Antes de seguir explicando la interfaz Comparator, revise el siguiente ejercicio. Recuerde
+que en la clase List habíamos dejado un método con la firma:
+
+```Java
+public List<E> findIntersection(List<E> another);
+```
+
+Dicho método recibe una lista y retorna los elementos communes a la lista recibida y
+a la que invoca el método.
+
+Entonces, en la clase LinkedList:
+
+```Java
+public List<E> findIntersection(List<E> another){
+    List<E> resultado = new LinkedList<>();
+
+    for (E e: this){ // Internamente se ejecuta nuestro .iterator(), obteniendo .getContent()
+        for (E otherListElement : another){
+            if (e == otherListElement) resultado.addLast(e);
+        }
+    }
+
+    return resultado;
+}
+```
+
+Si hacemos instancias de prueba:
+
+```Java
+List<Integer> l1= new LinkedList<>();
+l1.addFirst(1);
+l1.addFirst(2);
+l1.addFirst(3);
+l1.addFirst(0);
+        
+List<Integer> l2= new LinkedList<>();
+list.addLast(1);
+list.addLast(2);
+list.addLast(3);
+list.addLast(4);
+
+List<Integer> resultado = l1.findIntersection(l2);
+// Salida
+// 1
+// 2
+// 3
+```
+
+Sin embargo, ¿qué sucediera si quisieramos comparar objetos?. Note lo siguiente:
+
+```Java
+List<Person> list3 = new LinkedList<>();
+list3.addLast(new Person("Raquel", "Jaramillo", 24));
+list3.addLast(new Person("Raquel", "Jaramillo", 28));
+list3.addLast(new Person("Raquel", "Jaramillo", 47));
+list3.addLast(new Person("Rafael", "Pesantez", 23));
+list3.addLast(new Person("Felix", "Prado", 38));
+
+List<Person> list4 = new LinkedList<>();
+list4.addLast(new Person("Raquel", "Jaramillo", 24));
+list4.addLast(new Person("Felix", "Prado", 38));
+list4.addLast(new Person("Emilio", "Doumet", 17));
+list4.addLast(new Person("Alex", "Vaca", 84));
+list4.addLast(new Person("Daniel", "Pesantez", 23));
+        
+        
+List<Person> intersection2 = list3.findIntersection(list4);
+for (Person p : intersection2) {
+    System.out.println(p);
+}
+        
+List<Person> intersection3 = list3.findIntersection(list4);
+for (Person p : intersection3) {
+    System.out.println(p);
+}
+// Salida
+// ...
+```
+
+El operador relacional `==` no es suficiente para comparar objetos (Aunque se podría usar .equals()).
+Más adelante veremos cómo hacer el mismo método **con un Comparador**.
+
+### Continuando con la Interfaz Comparator<E>
+
+Al implementar (implements) la interfaz `Comparator<E>`, se exige reescribir el único
+método principal con firma:
+
+```Java
+int compare(T object1, T object2)
+```
+
+Como se puede evidenciar, Este método siempre retorna un número entero (int) y sigue 
+una convención universal de tres estados:
+
+![metodoCompare](./../sesion7/comparatorMethodCompare.png)
+
+> TIP: Si solo te interesa saber si son iguales (para un método de búsqueda como findAll o contains), que retorne 0 cuando coincidan y cualquier otro número (como 1 o -1) cuando sean distintos.
+
+No es necesario que sea sólo 0, 1, o -1. Podría darse el caso que esté comparando edades, en ese caso
+si la edad 1 es mayor que la edad 2 (10 > 5), podría retornar `return 10 - 5` que ya retorna un número
+positivo.
+
+#### Para qué nos sive en los TDAs
+
+Suponga que en LinkedList<E> se quiere crear un método genérico para buscar elementos que 
+cumplan cierto criterio:
+
+```Java
+LinkedList<E> findAll(Comparator<E> cmp, E object)
+``` 
+
+La lista no necesita saber si está guardando autos, personas o perros. La lista 
+simplemente recorre sus nodos y en cada paso le pregunta al comparador:
+
+```Java
+if (cmp.compare(nodoActual.getContent(), object) == 0) {
+    // ¡Coinciden en el criterio! Lo agregamos a la lista de resultados[cite: 50, 52]
+}
+```
+
+### Formas de Implementar un Comparator
+
+#### Creando una Instancia de la clase Comparator
+
+Crear la instancia del comparador, guardarla en una variable y luego pasarla a un método:
+
+```Java
+Comparator<Customer> cmpByCity = new Comparator<Customer>() {
+    @Override
+    public int compare(Customer o1, Customer o2) {
+        if (o1.getCity().equals(o2.getCity())) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+};
+
+Customer customerGye = new Customer();
+customerGye.setCity("Guayaquil");
+
+// Llamar al método que pida Comparator
+LinkedList<Customer> results = allCustomers.findAll(cmpByCity, customerGye);
+```
+
+#### Clase Anónima Directa
+
+En lugar de guardar el comparador en una variable previa, se instancia e implementa
+directamente dentro del argumento del método:
+
+```Java
+Customer customerGye = new Customer();
+customerGye.setCity("Guayaquil");
+
+LinkedList<Customer> results = allCustomers.findAll(new Comparator<Customer>() {
+    @Override
+    public int compare(Customer o1, Customer o2) {
+        if (o1.getCity().equals(o2.getCity())) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+}, customerGye);
+```
+
+#### Mediante una expresión lambda (La más limpia y moderna)
+
+Como Comparator es una Interfaz Funcional (solo tiene un método abstracto obligatorio), 
+Java permite resumir toda la sintaxis fea anterior en una sola Lambda 
+((param1, param2) -> { cuerpo }):
+
+```Java
+Customer customerGye = new Customer();
+customerGye.setCity("Guayaquil");
+
+LinkedList<Customer> results = allCustomers.findAll((Customer o1, Customer o2) -> {
+    if (o1.getCity().equals(o2.getCity())) {
+        return 0;
+    } else {
+        return 1;
+    }
+}, customerGye);
+```
+
+Regresemos al método con firma:
+
+```Java
+public List<E> findIntersection(List<E> another);
+```
+
+Si ahora usamos un comparador, estaríamos alterando su firma:
+
+```Java
+public List<E> findIntersection(List<E> another, Comparator<E> cmp);
+```
+
+Tendríamos entonces:
+
+```Java
+@Override
+public List<E> findIntersection(List<E> another, Comparator<E> cmp) {
+    LinkedList<E> result = new LinkedList<>();
+
+    for (E e1 : this) {
+        for (E e2 : another) {
+            if (cmp.compare(e1, e2) == 0) {
+                result.addLast(e1);
+            }
+        }
+    }
+    return result;
+}
+```
+
+Note que aquí sólo definimos lo que queremos que compare `Comparator<E>` más no
+cómo lo hará. Tenemos 3 formas para hacerlo:
+
+```Java
+// Instancia de la Interfaz Comparator con variable cmp1
+// Si queremos comparar por edades
+Comparator<Person> cmp1 = new Comparator<Person>(){
+    @Override
+    public int compare(Person p1, Person p2) {
+        
+        if (p1.getAge() == p2.getAge()){
+            return 0;
+        } else if (p1.getAge() > p2.getAge()){
+            return 1;
+        } else {
+            return -1;
+        }
+        // return p1.getAge() - p2.getAge(); // <--- Lo que habíamos mencionado
+    }
+};
+
+// Instancia de la Interfaz Comparator con variable cmp2
+// Si queremos comparar por edades
+Comparator<Person> cmp2 = new Comparator<Person>(){
+    @Override
+    public int compare(Person p1, Person p2) {
+        return p1.getName().compareTo(p2.getName());
+    }
+};
+
+List<Person> intersection2 = list3.findIntersection(list4, cmp1);
+System.out.println("*** INTERSECCION 2 ****");
+for (Person p : intersection2) {
+    System.out.println(p);
+}
+        
+List<Person> intersection3 = list3.findIntersection(list4, cmp2);
+System.out.println("*** INTERSECCION 3 ****");
+for (Person p : intersection3) {
+    System.out.println(p);
+}
+
+// Equivalentemente
+// Forma simple de Comparar usando expresionales lambdas
+List<Person> intersection4 = list3.findIntersection(list4, (p1, p2)->{
+    return p1.getAge() - p2.getAge();
+}); 
+System.out.println("*** INTERSECCION 4 ****");
+for (Person p : intersection4) {
+    System.out.println(p);
+}
+
+```
+
+- .comparteTo(): clases nativas de Java como `String`, `Integer`, `Double` ya vienen
+implementados con la interfaz Compare<E>. Compare no sólo tiene el método compare(), además
+tiene el método compareTo() el cual representa el orden natural interno de un objeto (Comparar
+el mismo objeto con otro). Puede retornar o negativo o cero o positivo (Lo que ya hemos visto).
+
+
+
 ## TDA Pila
 
 Una Pila (**Stack**) es una estructura de datos lineal donde la inserción y eliminación
@@ -2644,6 +2943,477 @@ Book[title=Estructuras de Datos, year=2022, ISBN=130369977]
 Book[title=Algorithms, year=2014, ISBN=978-1-118-77133-4]
 Book[title=Data Structures and Algorithms in Java, year=2002, ISBN=978-0672324536]
 ```
+
+
+## TDA Conjunto (Set)
+
+Un conjunto es una colección de elementos donde **NO se permiten duplicados**. Todos los miembros
+son únicos. Cabe recalcar que contiene datos homogéneos (enteros, caracteres o cadenas) los cuales
+están ordenados linealmente por una relación.
+
+### Operaciones matemáticas básicas
+
+Si A y B son conjuntos, entonces:
+
+- Unión ($A \cup B$): Elementos que están en $A$, en $B$ o en ambos.   
+- Intersección (**$A \cap B$**): Elementos que **pertenecen tanto a A como a B**.   
+- Diferencia (**$A - B$**): Elementos que están en $A$ pero NO en $B$.   
+
+
+### Operaciones del TDA conjunto
+
+- Conjunto Unión(Conjunto A, Conjunto B)
+- Conjunto Intersección(Conjunto A, Conjunto B)
+- Conjunto Diferencia(Conjunto A, Conjunto B)
+- bool EsMiembro(Conjunto A, Info x): Determina si el elemento x se encuentra en el conjunto A.
+- void Vacia(Conjunto A): Convierte al conjunto A en un conjunto vacio.
+
+Existen varias formas de representar un conjunto (En programación):
+
+- Usando vectores de bits.
+- Usando listas ordenadas.
+
+### Vectores de Bits
+
+Si nota que los elementos a guardar en el TDA son subconjunto de los enteros positivos entonces
+procede a usar **vectores de bits**.
+
+Un vector de bits es un **areglo booleano** de tal forma que: Si el elemento de posición i se almacena
+entonces `1: i es miembro del conjunto` o `0: i no es miembro del conjunto`. Por ejemplo::
+
+![vectorBits](./sesion10/vectorBits.png)
+
+Para declarar el TDA se necesita entonces un vector de bits y un tamaño máximo (del conjunto). La
+implementación de algunas operaciones pueden ser:
+
+```Java
+Conjunto Interseccion(Conjunto A, Conjunto B){
+    int i;
+    Conjunto C;
+
+    for(i = 0; i < MAX;i++)
+        C[i] = A[i] && B[i];
+
+    return C;
+}
+
+Conjunto Union(Conjunto A, Conjunto B){
+    int i;
+    Conjunto C;
+
+    for(i = 0; i < MAX;i++)
+        C[i] = A[i] || B[i];
+
+    return C;
+}
+```
+
+### Listas ordenadas
+
+Nótese que los vectores de bits son un poco ineficientes al momento de guardar conjuntos, de hecho,
+si tuvieramos el conjunto $A = {800, 1}$, habría mucha distancia del 1 al 800. Con las listas ordenadas
+no hay desperdicio de memoria alguno.
+
+En las listas ordenadas podemos guardar no sólo enteros. Gracias a su ordenamiento, por ejemplo: Al buscar 
+si $x$ es miembro, no tiene que recorrer toda la lista; se detiene tan pronto como encuentre un nodo 
+mayor o igual a $x$.
+
+#### Intersección: Aprovechar el orden
+
+Si quisiera implementar la intersección en las listas ordenadas entonces: Sea $A$ y $B$, entonces
+su intersección (en código):
+
+![interseccion](./sesion10/interseccion.png)
+
+> La complejidad del algoritmo en el peor de los casos fuese O(n^2) si ambas listas estuviesen desordenadas, dado que están ordenadas, su complejidad en el peor de los casos es O(n).
+
+
+### Conjuntos en Java: La interfaz `Set<E>`
+
+En Java, no puedes hacer new Set<>() (porque Set es una interfaz). Usas una de sus 3 
+implementaciones principales (NO ADMITEN DUPLICADOS):
+
+```Java
+// Suponga que existe la clase Book
+Set<Book> set1 = new HashSet();
+
+Set<Book> set2 = new LinkedHashSet<>();
+
+Set<Book> set3 = new TreeSet<>(); // Asume orden natural; si no, lanza excepción
+```
+
+Para ignorar el orden natural, un `TreeSet` debe instanciarse con un comparador:
+
+```Java
+Set<Book> set4 = new TreeSet<>((book1, book2) -> {
+    return book1.getYear() - book2.getYear();
+});
+```
+
+> Sobre el comenterio: lanza excepción si el elemento guardado en el conjunto **no implementa Comparable**.
+
+La principal diferencia de estas 3 implementaciones es el orden en que se devuelven los elementos
+del conjunto al invocar el método `iterator()`.
+
+
+| Implementación | Orden al Iterar(`iterator()`) 
+| :--- | :--- 
+| **`HashSet`** | **Sin ningún orden** en particular.
+| **`LinkedHashSet`** | Mantiene el **orden de inserción**.
+| **`TreeSet`** | Orden **ascendente natural** (o mediante `Comparator`).
+
+
+Observe el siguiente código:
+
+```Java
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class setIGuess {
+    public static void main(String[] args){
+        // Set de cadena de caracteres
+        // Test 1
+        Set<String> set1 = new HashSet(); // la clase HashSet tiene un orden aleatorio (no tiene orden)
+
+        String s = "A esta Cadena cadena es una cadena que tiene palabras repetidas es la en la misma cadena tiene palabras repetidas";
+        String[] split = s.split(" ");
+
+        System.out.println("Total palabras (con repetición): " + split.length);
+
+        for (int i = 0; i < split.length; i++) {
+            String palabra = split[i];
+            // Test 1
+            boolean b = set1.add(palabra);
+
+            System.out.println("Al insertar " + palabra + " se obtuvo: " + b);
+        }
+
+        System.out.println("Palabras en el set (únicas): " + set1.size());
+
+        // Test 2
+        // Iterar en el Set
+
+        Iterator<String> iterator = set1.iterator();
+
+        while (iterator.hasNext()) {
+            String e = iterator.next();
+            System.out.println(e);
+        }
+    }
+}
+```
+
+Su Output es:
+
+```
+Total palabras (con repetición): 20
+Al insertar A se obtuvo: true
+Al insertar esta se obtuvo: true
+Al insertar Cadena se obtuvo: true
+Al insertar cadena se obtuvo: true
+Al insertar es se obtuvo: true
+Al insertar una se obtuvo: true
+Al insertar cadena se obtuvo: false
+Al insertar que se obtuvo: true
+Al insertar tiene se obtuvo: true
+Al insertar palabras se obtuvo: true
+Al insertar repetidas se obtuvo: true
+Al insertar es se obtuvo: false
+Al insertar la se obtuvo: true
+Al insertar en se obtuvo: true
+Al insertar la se obtuvo: false
+Al insertar misma se obtuvo: true
+Al insertar cadena se obtuvo: false
+Al insertar tiene se obtuvo: false
+Al insertar palabras se obtuvo: false
+Al insertar repetidas se obtuvo: false
+Palabras en el set (únicas): 13
+que
+A
+cadena
+Cadena
+una
+en
+es
+repetidas
+esta
+tiene
+la
+palabras
+misma
+```
+
+Si en lugar de `HashSet` tuviera `LinkedHashSet`, entonces su output:
+
+```
+Total palabras (con repetición): 20
+Al insertar A se obtuvo: true
+Al insertar esta se obtuvo: true
+Al insertar Cadena se obtuvo: true
+Al insertar cadena se obtuvo: true
+Al insertar es se obtuvo: true
+Al insertar una se obtuvo: true
+Al insertar cadena se obtuvo: false
+Al insertar que se obtuvo: true
+Al insertar tiene se obtuvo: true
+Al insertar palabras se obtuvo: true
+Al insertar repetidas se obtuvo: true
+Al insertar es se obtuvo: false
+Al insertar la se obtuvo: true
+Al insertar en se obtuvo: true
+Al insertar la se obtuvo: false
+Al insertar misma se obtuvo: true
+Al insertar cadena se obtuvo: false
+Al insertar tiene se obtuvo: false
+Al insertar palabras se obtuvo: false
+Al insertar repetidas se obtuvo: false
+Palabras en el set (únicas): 13
+A
+esta
+Cadena
+cadena
+es
+una
+que
+tiene
+palabras
+repetidas
+la
+en
+misma
+```
+
+Además, el output si fuese `TreeSet` en lugar de `LinkedHashSet`:
+
+```Output
+Total palabras (con repetición): 20
+Al insertar A se obtuvo: true
+Al insertar esta se obtuvo: true
+Al insertar Cadena se obtuvo: true
+Al insertar cadena se obtuvo: true
+Al insertar es se obtuvo: true
+Al insertar una se obtuvo: true
+Al insertar cadena se obtuvo: false
+Al insertar que se obtuvo: true
+Al insertar tiene se obtuvo: true
+Al insertar palabras se obtuvo: true
+Al insertar repetidas se obtuvo: true
+Al insertar es se obtuvo: false
+Al insertar la se obtuvo: true
+Al insertar en se obtuvo: true
+Al insertar la se obtuvo: false
+Al insertar misma se obtuvo: true
+Al insertar cadena se obtuvo: false
+Al insertar tiene se obtuvo: false
+Al insertar palabras se obtuvo: false
+Al insertar repetidas se obtuvo: false
+Palabras en el set (únicas): 13
+A
+Cadena
+cadena
+en
+es
+esta
+la
+misma
+palabras
+que
+repetidas
+tiene
+una
+```
+
+## TDA Mapa o Diccionario
+
+Puede considerarse como un conjunto el cuál está limitado; no se podrán 
+realizar operaciones de intersección y unión entre ellos. Dicho diccionario
+permite hacer operaciones como:
+
+- Añadir elementos a un conjunto: Insertar.
+- Consultar si un elemento existe: EsMiembro.
+- Eliminar elementos de un conjunto: Suprimir.
+
+De esta forma (limitado), el conjunto **es un diccionario**.
+
+### Dispersión o Hashing
+
+Dada una tabla de B filas. Cada fila en dicha tabla es conocida como
+**cubeta / Slot / Bucket**. Intentemos distribuir todos los elementos
+en una cubeta / Slot / Bucket.
+
+Para llevar a cabo esa distribución de todos los elementos en un Slot
+usamos una **función de dispersión**, también conocida como **tabla de dispersión**
+o **mapa de hashing**.
+
+La función está definida como h(x) la cual retorna un índice o posición, tal que
+x es una clave o un elemento. Es decir, h(x) retorna el índice donde será
+colocada esa clave o elemento.
+
+La intención de la función de dispersión es organizar los elementos dentro
+de un diccionario; h(x) calculará eficientemente el slot donde debe 
+ubicarse el elemento x. Nótese que, en este curso, la **clave = elemento**.
+
+Considere el conjunto $A =$ {$4, 6, 2, 8, 1$}. Considere los siguientes slots creados para el conjunto:
+
+![cubetasEjemplo](./sesion10/cubetas.png)
+
+Entonces el índice de cada elemento está sujeto a una función de dispersión:
+
+```
+h(1) = 4
+
+h(8) = 0
+
+h(2) = 2
+
+h(6) = 1
+
+h(4) = 5
+```
+
+Por cierto, h(x) es uno hipotético para este ejercicio. En resumen, el hash permite saber el índice
+de un elemento al insertarlo o al consultar por él.
+
+Podría darse el caso de que al consultar a 2 elementos diferentes con una función de dispersión, ésta diese
+el mismo índice. Ese caso, es conocido como **colisión**. Más adelante veremos cómo manejar colisiones con
+**estrategias de colisión**.
+
+Por último, toda función hash debe:
+
+- Distribuir índices uniformemente (Es imposible tener 0 colisiones, pero sí menos colisiones).
+
+- Generar un índice entre [0, B - 1] (B se refiere a N(B) = |B| = card(B))
+
+- Tener un algoritmo sencillo.
+
+Ahora, procederemos a ver de los algoritmos de los que disponemos para definir la regla de correspondencia de 
+h(x) -> Posibles h(x).
+
+
+#### Arimética modular
+
+Para este algoritmo, conviene que el número de cubetas B sea primo. Así, el índice se obtiene
+de: clave % B. Por ejemplo:
+
+```
+Suponga B = 7 y clave = elemento = 30, entonces f(30) = 2. 
+```
+
+#### Mitad del cuadrado
+
+El algoritmo de mitad al cuadrado es el siguiente:
+
+1. Elevar al cuadrado la clave.
+
+2. Tomar los dígitos de una determinada posición.
+
+3. El número de dígitos depende del rango del índice (Si B = 100, entonces su rango de cubetas es 99 -> 2 dígitos).
+
+```
+Considere B: 100 y clave = 256. Entonces, tomaremos 2 dígitos (rango de 99) de posición: 1 y 2 (desde derecha)
+Así, su índice es 256^2 = 65536 -> Tomamos 63 (la posición empieza desde el 1).
+```
+
+#### Truncamiento
+
+Tomamos dígitos directamente de la clave (Los provee el ejercicio), en posiciones fijas.
+
+```
+Considere B = 1000, tomar 3 dígitos siempre en posiciones 1, 2, 5
+Si clave = 72588495, entonces índice = 598
+```
+
+#### Plegamiento
+
+Esta forma obtener el índice **funciona sólo con Strings**. Consiste en:
+
+- Dividir la clave en trozos.
+
+- Luego, aplicarles alguna operación (Lo indica el ejercicio).
+
+```
+"David". En efecto, dividimos la clave a trozos mediante código ASCII, cada letra será
+un número ASCII, luego tomamos el residuo de la suma de digitos dividido para B.
+
+D -> 68
+A -> 65
+V -> 86
+I -> 73
+D -> 68
+Suma: 360 
+B siendo 7
+
+Entonces Índice = 360 % 7 = 3
+```
+
+### Tratamiento de colisiones
+
+Como ya se dijo, una colsión ocurre cuando dos claves distintas generan el mismo índice, 
+es decir, h($x_1$) =h($x_2$).
+
+Existen 2 tipos de Hashing:
+
+- **Hashing abierto**: Cada cubeta almacena a una colección de elementos (Sin colisiones).
+
+- **Hashing cerrado**: Un solo elemento por cubeta.
+
+Para el caso del hashing cerrado, sí pueden existir colisiones. Para esos casos, aplicamos una
+**función de redispersión** (Aplicar otra función hash de reserva n veces hasta que no haya
+colisión).
+
+
+#### Hashing abierto
+
+Cada cubeta del arreglo no es un espacio rígido, sino la entrada a una lista enlazada. Por ejemplo:
+La clave 8 calcula la cubeta 1 $\to$ Va a la cubeta 1. La clave 1 también calcula la cubeta 1 (¡Colisión!).   
+En lugar de botar a nadie, en la cubeta 1 simplemente enganchas a 1 a continuación de 8 forming una 
+lista: [8] $\to$ [1]. 
+
+Note que de esta forma, la tabla nunca se llena: Si chocan 10 elementos en la 
+misma cubeta, la lista de esa cubeta simplemente crece hacia afuera con 10 nodos.
+
+Suponga $A$ = {$4, 6, 2, 8, 1$} y los valores que da la función de dispersión a cada elemento es:
+
+```
+h(1) = 1
+h(8) = 1
+h(2) = 2
+h(6) = 5
+h(4) = 2
+```
+
+En lugar de explotar (XD), simplemente se van acumulando.
+
+![acumulando](./sesion10/acumulando.png)
+
+A nivel de declaración:
+
+- Cada cubeta tiene una lista de elementos asociados a la misma.
+
+- La tabla es un arreglo de cubetas.
+
+![declaracionHashing](./sesion10/declaracionHashingAbierto.png)
+
+#### Hashing cerrado
+
+Dado que es un solo elemento por cubeta (no una lista), se pueden dar colisiones. Si se
+da una colisión, entonces se aplica otra función hash $h_i(x)$ donde i es el número de colisión
+para el elemento x. Sin embargo, si hay elementos en todas las cubetas, entonces no se podrá
+insertar el elemento
+
+Los posibles $H_i(x)$:
+
+- **Rehash lineal**: $h_i(x) = (h(x) + i) \% B$
+
+- **Rehash cuadrático**: $h_i(x) = (h(x) + i^2) \% B$
+
+### Resumen Mapas
+
+![resumenMapas](./sesion10/resumenMapas.png)
+
 
 
 
